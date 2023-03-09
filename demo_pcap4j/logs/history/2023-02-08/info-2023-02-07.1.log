@@ -1,0 +1,36 @@
+2023-02-07 16:46:26.978 -- [1;35m[main][m [1;32mINFO [m org.pcap4j.core.NativeMappings.<clinit> - Pcap4J successfully loaded a native pcap library: libpcap version 1.10.1 (with TPACKET_V3)
+2023-02-07 16:46:26.989 -- [1;35m[main][m [1;32mINFO [m org.pcap4j.util.PropertiesLoader.getInteger - [org/pcap4j/pcap4j.properties] Could not get value by org.pcap4j.af.inet, use default value: 2
+2023-02-07 16:46:26.989 -- [1;35m[main][m [1;32mINFO [m org.pcap4j.util.PropertiesLoader.getInteger - [org/pcap4j/pcap4j.properties] Could not get value by org.pcap4j.af.inet6, use default value: 10
+2023-02-07 16:46:26.989 -- [1;35m[main][m [1;32mINFO [m org.pcap4j.util.PropertiesLoader.getInteger - [org/pcap4j/pcap4j.properties] Could not get value by org.pcap4j.af.packet, use default value: 17
+2023-02-07 16:46:26.990 -- [1;35m[main][m [1;32mINFO [m org.pcap4j.util.PropertiesLoader.getInteger - [org/pcap4j/pcap4j.properties] Could not get value by org.pcap4j.af.link, use default value: 18
+2023-02-07 16:46:26.996 -- [1;35m[main][m [1;32mINFO [m org.pcap4j.core.Pcaps.findAllDevs - 11 NIF(s) found.
+2023-02-07 16:46:26.996 -- [1;35m[main][m [1;32mINFO [m com.example.pcap4j.DumpPacketsTest.testDumpFromNetInterface - 网卡名称:-->wlo1，是否运行:--->true
+2023-02-07 16:46:26.996 -- [1;35m[main][m [1;32mINFO [m com.example.pcap4j.DumpPacketsTest.testDumpFromNetInterface - 网卡名称:-->any，是否运行:--->true
+2023-02-07 16:46:26.996 -- [1;35m[main][m [1;32mINFO [m com.example.pcap4j.DumpPacketsTest.testDumpFromNetInterface - 网卡名称:-->lo，是否运行:--->true
+2023-02-07 16:46:26.997 -- [1;35m[main][m [1;32mINFO [m com.example.pcap4j.DumpPacketsTest.testDumpFromNetInterface - 网卡名称:-->eno1，是否运行:--->false
+2023-02-07 16:46:26.997 -- [1;35m[main][m [1;32mINFO [m com.example.pcap4j.DumpPacketsTest.testDumpFromNetInterface - 网卡名称:-->bluetooth0，是否运行:--->false
+2023-02-07 16:46:26.997 -- [1;35m[main][m [1;32mINFO [m com.example.pcap4j.DumpPacketsTest.testDumpFromNetInterface - 网卡名称:-->bluetooth-monitor，是否运行:--->false
+2023-02-07 16:46:26.997 -- [1;35m[main][m [1;32mINFO [m com.example.pcap4j.DumpPacketsTest.testDumpFromNetInterface - 网卡名称:-->nflog，是否运行:--->false
+2023-02-07 16:46:26.997 -- [1;35m[main][m [1;32mINFO [m com.example.pcap4j.DumpPacketsTest.testDumpFromNetInterface - 网卡名称:-->nfqueue，是否运行:--->false
+2023-02-07 16:46:26.997 -- [1;35m[main][m [1;32mINFO [m com.example.pcap4j.DumpPacketsTest.testDumpFromNetInterface - 网卡名称:-->dbus-system，是否运行:--->false
+2023-02-07 16:46:26.998 -- [1;35m[main][m [1;32mINFO [m com.example.pcap4j.DumpPacketsTest.testDumpFromNetInterface - 网卡名称:-->dbus-session，是否运行:--->false
+2023-02-07 16:46:26.998 -- [1;35m[main][m [1;32mINFO [m com.example.pcap4j.DumpPacketsTest.testDumpFromNetInterface - 网卡名称:-->vboxnet0，是否运行:--->false
+2023-02-07 16:46:27.003 -- [1;35m[main][m [1;32mINFO [m org.pcap4j.core.Pcaps.findAllDevs - 11 NIF(s) found.
+2023-02-07 16:53:09.050 -- [1;35m[main][m [1;32mINFO [m org.pcap4j.core.NativeMappings.<clinit> - Pcap4J successfully loaded a native pcap library: libpcap version 1.10.1 (with TPACKET_V3)
+2023-02-07 16:53:09.061 -- [1;35m[main][m [1;32mINFO [m org.pcap4j.util.PropertiesLoader.getInteger - [org/pcap4j/pcap4j.properties] Could not get value by org.pcap4j.af.inet, use default value: 2
+2023-02-07 16:53:09.062 -- [1;35m[main][m [1;32mINFO [m org.pcap4j.util.PropertiesLoader.getInteger - [org/pcap4j/pcap4j.properties] Could not get value by org.pcap4j.af.inet6, use default value: 10
+2023-02-07 16:53:09.062 -- [1;35m[main][m [1;32mINFO [m org.pcap4j.util.PropertiesLoader.getInteger - [org/pcap4j/pcap4j.properties] Could not get value by org.pcap4j.af.packet, use default value: 17
+2023-02-07 16:53:09.062 -- [1;35m[main][m [1;32mINFO [m org.pcap4j.util.PropertiesLoader.getInteger - [org/pcap4j/pcap4j.properties] Could not get value by org.pcap4j.af.link, use default value: 18
+2023-02-07 16:53:09.068 -- [1;35m[main][m [1;32mINFO [m org.pcap4j.core.Pcaps.findAllDevs - 11 NIF(s) found.
+2023-02-07 16:53:09.069 -- [1;35m[main][m [1;32mINFO [m com.example.pcap4j.DumpPacketsTest.testDumpFromNetInterface - 网卡名称:-->wlo1，是否运行:--->true
+2023-02-07 16:53:09.069 -- [1;35m[main][m [1;32mINFO [m com.example.pcap4j.DumpPacketsTest.testDumpFromNetInterface - 网卡名称:-->any，是否运行:--->true
+2023-02-07 16:53:09.069 -- [1;35m[main][m [1;32mINFO [m com.example.pcap4j.DumpPacketsTest.testDumpFromNetInterface - 网卡名称:-->lo，是否运行:--->true
+2023-02-07 16:53:09.069 -- [1;35m[main][m [1;32mINFO [m com.example.pcap4j.DumpPacketsTest.testDumpFromNetInterface - 网卡名称:-->eno1，是否运行:--->false
+2023-02-07 16:53:09.069 -- [1;35m[main][m [1;32mINFO [m com.example.pcap4j.DumpPacketsTest.testDumpFromNetInterface - 网卡名称:-->bluetooth0，是否运行:--->false
+2023-02-07 16:53:09.070 -- [1;35m[main][m [1;32mINFO [m com.example.pcap4j.DumpPacketsTest.testDumpFromNetInterface - 网卡名称:-->bluetooth-monitor，是否运行:--->false
+2023-02-07 16:53:09.070 -- [1;35m[main][m [1;32mINFO [m com.example.pcap4j.DumpPacketsTest.testDumpFromNetInterface - 网卡名称:-->nflog，是否运行:--->false
+2023-02-07 16:53:09.070 -- [1;35m[main][m [1;32mINFO [m com.example.pcap4j.DumpPacketsTest.testDumpFromNetInterface - 网卡名称:-->nfqueue，是否运行:--->false
+2023-02-07 16:53:09.070 -- [1;35m[main][m [1;32mINFO [m com.example.pcap4j.DumpPacketsTest.testDumpFromNetInterface - 网卡名称:-->dbus-system，是否运行:--->false
+2023-02-07 16:53:09.070 -- [1;35m[main][m [1;32mINFO [m com.example.pcap4j.DumpPacketsTest.testDumpFromNetInterface - 网卡名称:-->dbus-session，是否运行:--->false
+2023-02-07 16:53:09.070 -- [1;35m[main][m [1;32mINFO [m com.example.pcap4j.DumpPacketsTest.testDumpFromNetInterface - 网卡名称:-->vboxnet0，是否运行:--->false
+2023-02-07 16:53:09.076 -- [1;35m[main][m [1;32mINFO [m org.pcap4j.core.Pcaps.findAllDevs - 11 NIF(s) found.

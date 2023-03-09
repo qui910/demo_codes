@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"  lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <title>websocket通讯</title>
+</head>
+<script type="text/javascript" th:src="@{/js/lib/jquery.3.5.1/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/lib/sockjs.1.4.0/sockjs.min.js}"></script>
+<script>
+    let socket;
+    function openSocket() {
+        if(typeof(WebSocket) == "undefined") {
+            console.log("您的浏览器不支持WebSocket");
+        }else{
+            console.log("您的浏览器支持WebSocket");
+            //实现化WebSocket对象，指定要连接的服务器地址与端口  建立连接
+            //等同于socket = new WebSocket("ws://localhost:9010/javatest/ws/25");
+            //var socketUrl="${request.contextPath}/ws/"+$("#userId").val();
+            let socketUrl = "http://localhost:8081/demo/ws/serverOne/" + $("#userId").val();
+            socketUrl=socketUrl.replace("https","ws").replace("http","ws");
+            console.log(socketUrl)
+            socket = new WebSocket(socketUrl);
+            if('WebSocket' in window) {
+                socket = new WebSocket(socketUrl);
+            } else if('MozWebSocket' in window) {
+                socket = new MozWebSocket(socketUrl);
+            } else {
+                socket = new SockJS(socketUrl);
+            }
+            //打开事件
+            socket.onopen = function() {
+                setMessageInnerHTML(">>>WebSocket已打开");
+                let msg = '{"toUserId":"","contentText":"这是来自客户端'+$("#userId").val()+'的消息","date":"'+formatDate(new
+                    Date())+'"}';
+                socket.send(msg);
+                setMessageInnerHTML(">>>"+msg);
+            };
+            //获得消息事件
+            socket.onmessage = function(msg) {
+                console.log(msg.data);
+                //发现消息进入    开始处理前端触发逻辑
+                setMessageInnerHTML("<<<"+msg.data);
+            };
+            //关闭事件
+            socket.onclose = function() {
+                setMessageInnerHTML(">>>WebSocket已关闭");
+            };
+            //发生了错误事件
+            socket.onerror = function() {
+                setMessageInnerHTML(">>>WebSocket发生了错误");
+            }
+            //监听窗口关闭事件，当窗口关闭时，主动去关闭websocket连接，防止连接还没断开就关闭窗口，server端会抛异常。
+            window.onbeforeunload = function () {
+                socket.clone();
+            }
+        }
+    }
+    function sendMessage() {
+        let toUserId = $("#toUserId");
+        let contentText = $("#contentText");
+        if(typeof(WebSocket) == "undefined") {
+            console.log("您的浏览器不支持WebSocket");
+        }else {
+            console.log("您的浏览器支持WebSocket");
+            let msg =
+                '{"toUserId":"'+toUserId.val()+'","contentText":"'+contentText.val()+'","date":"'+formatDate(new
+                Date())+'"}';
+            socket.send(msg);
+            setMessageInnerHTML(">>>"+msg);
+        }
+    }
+
+    //将消息显示在网页上
+    function setMessageInnerHTML(innerHTML) {
+        document.getElementById('message').innerHTML += innerHTML + '<br/>';
+    }
+
+    function formatDate(time){
+        let date = new Date(time);
+
+        let year = date.getFullYear(),
+            month = date.getMonth() + 1,//月份是从0开始的
+            day = date.getDate(),
+            hour = date.getHours(),
+            min = date.getMinutes(),
+            sec = date.getSeconds();
+        return year + '-' +
+            month + '-' +
+            day + ' ' +
+            hour + ':' +
+            min + ':' +
+            sec;
+    }
+
+</script>
+<body>
+<p th:text="'Hello, ' + ${title}"></p><br/>
+<p>【userId】：<div><label for="userId"></label><input id="userId" name="userId" type="text" value="11" /></div>
+<p>【toUserId】：<div><label for="toUserId"></label><input id="toUserId" name="toUserId" type="text" value="22"/></div>
+<p>【toUserId内容】：<div><label for="contentText"></label><input id="contentText" name="contentText" type="text" value="abc"/></div>
+<p>【操作】：<div><input type="button" onclick="openSocket()"  value="开启socket"/></div>
+<p>【操作】：<div><input type="button" onclick="sendMessage()" value="发送消息"/></div>
+<div id="message"></div>
+</body>
+
+</html>

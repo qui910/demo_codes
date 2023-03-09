@@ -1,0 +1,13 @@
+2023-02-08 10:03:08.546 -- [1;35m[main][m [1;32mINFO [m com.example.netty.httpserver.HttpFileServer.run - HTTP 文件服务器启动, 地址是： http://localhost:9090/src/
+2023-02-08 10:20:00.343 -- [1;35m[nioEventLoopGroup-2-1][m [1;32mINFO [m io.netty.handler.logging.LoggingHandler.log - [id: 0x883f08ce] REGISTERED
+2023-02-08 10:20:00.346 -- [1;35m[nioEventLoopGroup-2-1][m [1;32mINFO [m io.netty.handler.logging.LoggingHandler.log - [id: 0x883f08ce] BIND: 0.0.0.0/0.0.0.0:9999
+2023-02-08 10:20:00.347 -- [1;35m[nioEventLoopGroup-2-1][m [1;32mINFO [m io.netty.handler.logging.LoggingHandler.log - [id: 0x883f08ce, L:/0:0:0:0:0:0:0:0:9999] ACTIVE
+2023-02-08 10:20:00.348 -- [1;35m[main][m [1;32mINFO [m com.example.netty.ftpserver.NettyServer.run - http://127.0.0.1:9999/ start
+2023-02-08 10:20:14.626 -- [1;35m[nioEventLoopGroup-2-1][m [1;32mINFO [m io.netty.handler.logging.LoggingHandler.log - [id: 0x883f08ce, L:/0:0:0:0:0:0:0:0:9999] READ: [id: 0xd8da4c56, L:/127.0.0.1:9999 - R:/127.0.0.1:33484]
+2023-02-08 10:20:14.668 -- [1;35m[nioEventLoopGroup-2-1][m [1;32mINFO [m io.netty.handler.logging.LoggingHandler.log - [id: 0x883f08ce, L:/0:0:0:0:0:0:0:0:9999] READ COMPLETE
+2023-02-08 10:20:14.668 -- [1;35m[nioEventLoopGroup-2-1][m [1;32mINFO [m io.netty.handler.logging.LoggingHandler.log - [id: 0x883f08ce, L:/0:0:0:0:0:0:0:0:9999] READ: [id: 0xae061bc1, L:/127.0.0.1:9999 - R:/127.0.0.1:33486]
+2023-02-08 10:20:14.669 -- [1;35m[nioEventLoopGroup-2-1][m [1;32mINFO [m io.netty.handler.logging.LoggingHandler.log - [id: 0x883f08ce, L:/0:0:0:0:0:0:0:0:9999] READ COMPLETE
+2023-02-08 10:20:24.273 -- [1;35m[nioEventLoopGroup-2-1][m [1;33mWARN [m com.example.netty.ftpserver.HttpDownloadHandler.channelRead0 - file /data/body.csv not found
+2023-02-08 10:42:48.444 -- [1;35m[main][m [1;32mINFO [m com.example.netty.httpserver2.NettyServer.run - http://127.0.0.1:9999/ start
+2023-02-08 10:52:57.665 -- [1;35m[main][m [1;32mINFO [m com.example.netty.httpserver3.FileServer.run - 服务器即将启动,http://127.0.0.1:9999/
+2023-02-08 10:53:52.050 -- [1;35m[main][m [1;32mINFO [m com.example.netty.httpserver3.FileServer.run - 服务器即将启动,http://127.0.0.1:9999/

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Spring Boot+WebSocket+广播式</title>
+
+</head>
+<body onload="disconnect()">
+<noscript><h2 style="color: #ff0000">貌似你的浏览器不支持websocket</h2></noscript>
+<div>
+    <div>
+        <label for="fromUser">发送者:</label><select id="fromUser">
+        <option value="user1" selected="selected">user1</option>
+        <option value="user2">user2</option>
+        <option value="user3">user3</option>
+    </select>
+        <button id="connect" onclick="connect();">连接</button>
+        <button id="disconnect" disabled="disabled" onclick="disconnect();">断开连接</button>
+    </div>
+    <div id="conversationDiv">
+        <label for="toUser">接收者:</label><select id="toUser">
+        <option value="all" selected="selected">all</option>
+        <option value="user1">user1</option>
+        <option value="user2">user2</option>
+        <option value="user3">user3</option>
+        <option value="user4">user4</option>
+    </select>
+        <label for="context">消息内容</label><input type="text" id="context"/>
+        <button id="sendName" onclick="sendName();">发送</button>
+        <div id="response"></div>
+    </div>
+</div>
+<script type="text/javascript" th:src="@{/js/lib/sockjs.1.4.0/sockjs.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/lib/stomp.1.7.1/stomp.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/lib/jquery.3.5.1/jquery.min.js}"></script>
+<script type="text/javascript">
+    let stompClient = null;
+
+    function setConnected(connected) {
+        document.getElementById('connect').disabled = connected;
+        document.getElementById('disconnect').disabled = !connected;
+        document.getElementById('conversationDiv').style.visibility = connected ? 'visible' : 'hidden';
+        $('#response').html();
+    }
+
+    function connect() {
+        // 连接 SockJs 的 endpoint 名称为 "/marcopolo"
+        let token = $('#fromUser').val();
+        var resp = document.getElementById("response");
+        let socket = new SockJS('/demo/marcopolo?token=' + token);
+        // 使用STOMP子协议的WebSocket客户端
+        stompClient = Stomp.over(socket);
+        // 连接成功后订阅消息接口
+        stompClient.connect({}, function (frame) {
+            setConnected(true);
+            // 订阅个人消息
+            // 监听 '/user/'+token+'/queue/msg/new' 并不能获取个人消息
+            stompClient.subscribe('/user/queue/msg/new', function (response) {
+                let fromU = JSON.parse(response.body).fromName;
+                let content = JSON.parse(response.body).content;
+                resp.insertAdjacentHTML("afterbegin", '<p style=\"font-size:14px;background-color:lightgray\">' + 'From:' + fromU + " " + content + '</p>');
+            });
+
+            // 消息发送结果
+            stompClient.subscribe('/user/queue/msg/result', function (response) {
+                if (response.body) {
+                    let toUser = $('#toUser').val();
+                    let context = $('#context').val();
+                    resp.insertAdjacentHTML("afterbegin", '<p style=\"font-size:14px;background-color:green\">' + 'To:' + toUser + " " + context + '</p>');
+                }
+            });
+
+            // 订阅广播消息
+            stompClient.subscribe('/topic/notice', function (response) {
+                let fromU = JSON.parse(response.body).fromName;
+                let content = JSON.parse(response.body).content;
+                resp.insertAdjacentHTML("afterbegin", '<p style=\"font-size:14px;background-color:yellow\">' + 'From:' + fromU + " " + content + '</p>');
+            });
+
+            // 订阅异常消息
+            stompClient.subscribe('/user/queue/errors', function (response) {
+                resp.insertAdjacentHTML("afterbegin", '<p style=\"font-size:14px;background-color:red\">' + response.body + '</p>');
+            });
+        });
+    }
+
+
+    function disconnect() {
+        // 断开连接
+        if (stompClient != null) {
+            stompClient.disconnect();
+        }
+        setConnected(false);
+        console.log("Disconnected");
+    }
+
+    function sendName() {
+        // 向服务端发送消息
+        let toUser = $('#toUser').val();
+        let fromUser = $('#fromUser').val();
+        let context = $('#context').val();
+
+        if (context === "" || $.trim(context) === "") {
+            alert("请填写消息内容");
+            return false;
+        }
+
+        if (toUser === "all") {
+            // 发送广播
+            stompClient.send('/app/addNotice', {}, context);
+        } else {
+            // 发送点对点消息
+            var msg = {
+                toName: toUser,
+                fromName: fromUser,
+                content: context
+            };
+            stompClient.send('/app/msg', {}, JSON.stringify(msg));
+        }
+    }
+</script>
+</body>
+</html>
