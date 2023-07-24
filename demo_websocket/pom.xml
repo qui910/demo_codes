@@ -9,9 +9,9 @@
 	</parent>
 
 	<groupId>com.example</groupId>
-	<artifactId>test_spring_boot</artifactId>
+	<artifactId>demo_websocket</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>test_spring_boot</name>
+	<name>demo_websocket</name>
 	<description>Demo project for Spring Boot</description>
 
 	<properties>
