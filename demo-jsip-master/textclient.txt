@@ -1,0 +1,138 @@
+<!-- Use the  Trace Viewer in src/tools/tracesviewer to view this  trace  
+Here are the stack configuration properties 
+javax.sip.IP_ADDRESS= 192.168.1.133
+javax.sip.STACK_NAME= TextClient
+javax.sip.ROUTER_PATH= null
+javax.sip.OUTBOUND_PROXY= null
+-->
+<description
+ logDescription="TextClient"
+ name="TextClient"
+ auxInfo="null"/>
+ 
+<!-- Use the  Trace Viewer in src/tools/tracesviewer to view this  trace  
+Here are the stack configuration properties 
+javax.sip.IP_ADDRESS= 169.254.89.253
+javax.sip.STACK_NAME= TextClient
+javax.sip.ROUTER_PATH= null
+javax.sip.OUTBOUND_PROXY= null
+-->
+<description
+ logDescription="TextClient"
+ name="TextClient"
+ auxInfo="null"/>
+ 
+<!-- Use the  Trace Viewer in src/tools/tracesviewer to view this  trace  
+Here are the stack configuration properties 
+javax.sip.IP_ADDRESS= 169.254.89.253
+javax.sip.STACK_NAME= TextClient
+javax.sip.ROUTER_PATH= null
+javax.sip.OUTBOUND_PROXY= null
+-->
+<description
+ logDescription="TextClient"
+ name="TextClient"
+ auxInfo="null"/>
+ 
+<!-- Use the  Trace Viewer in src/tools/tracesviewer to view this  trace  
+Here are the stack configuration properties 
+javax.sip.IP_ADDRESS= 192.168.1.133
+javax.sip.STACK_NAME= TextClient
+javax.sip.ROUTER_PATH= null
+javax.sip.OUTBOUND_PROXY= null
+-->
+<description
+ logDescription="TextClient"
+ name="TextClient"
+ auxInfo="null"/>
+ 
+<!-- Use the  Trace Viewer in src/tools/tracesviewer to view this  trace  
+Here are the stack configuration properties 
+javax.sip.IP_ADDRESS= 192.168.1.133
+javax.sip.STACK_NAME= TextClient
+javax.sip.ROUTER_PATH= null
+javax.sip.OUTBOUND_PROXY= null
+-->
+<description
+ logDescription="TextClient"
+ name="TextClient"
+ auxInfo="null"/>
+ 
+<message
+from="192.168.1.133:5062" 
+to="192.168.1.133:5060" 
+time="1632710819165"
+isSender="true" 
+transactionId="textclientv1.0-11ba6ec53b3fe5204b72cda47d7c7015-192.168.1.133-1-message-192.168.1.133-50623935" 
+callId="11ba6ec53b3fe5204b72cda47d7c7015@192.168.1.133" 
+firstLine="MESSAGE sip:1001@192.168.1.133:5060;transport=udp SIP/2.0" 
+>
+<![CDATA[MESSAGE sip:1001@192.168.1.133:5060;transport=udp SIP/2.0
+Call-ID: 11ba6ec53b3fe5204b72cda47d7c7015@192.168.1.133
+CSeq: 1 MESSAGE
+From: "jason2" <sip:jason2@192.168.1.133:5062>;tag=textclientv1.0
+To: "1001" <sip:1001@192.168.1.133:5060>
+Via: SIP/2.0/UDP 192.168.1.133:5062;branch=branch1
+Max-Forwards: 70
+Contact: "jason2" <sip:jason2@192.168.1.133:5062>
+Content-Type: text/plain
+Content-Length: 10
+
+]]>
+</message>
+
+<!-- Use the  Trace Viewer in src/tools/tracesviewer to view this  trace  
+Here are the stack configuration properties 
+javax.sip.IP_ADDRESS= 192.168.1.133
+javax.sip.STACK_NAME= TextClient
+javax.sip.ROUTER_PATH= null
+javax.sip.OUTBOUND_PROXY= null
+-->
+<description
+ logDescription="TextClient"
+ name="TextClient"
+ auxInfo="null"/>
+ 
+<message
+from="192.168.1.133:5062" 
+to="192.168.1.133:5060" 
+time="1632710922109"
+isSender="true" 
+transactionId="textclientv1.0-b6e671a5e99d3a76d90edf9065b993c6-192.168.1.133-1-message-192.168.1.133-5062393634" 
+callId="b6e671a5e99d3a76d90edf9065b993c6@192.168.1.133" 
+firstLine="MESSAGE sip:1001@192.168.1.133:5060;transport=udp SIP/2.0" 
+>
+<![CDATA[MESSAGE sip:1001@192.168.1.133:5060;transport=udp SIP/2.0
+Call-ID: b6e671a5e99d3a76d90edf9065b993c6@192.168.1.133
+CSeq: 1 MESSAGE
+From: "jason2" <sip:jason2@192.168.1.133:5062>;tag=textclientv1.0
+To: "1001" <sip:1001@192.168.1.133:5060>
+Via: SIP/2.0/UDP 192.168.1.133:5062;branch=branch1
+Max-Forwards: 70
+Contact: "jason2" <sip:jason2@192.168.1.133:5062>
+Content-Type: text/plain
+Content-Length: 4
+
+]]>
+</message>
+
+<message
+from="192.168.1.133:5060" 
+to="192.168.1.133:5062" 
+time="1632711249264"
+isSender="false" 
+transactionId="textclientv1.0-b6e671a5e99d3a76d90edf9065b993c6-192.168.1.133-1-message-192.168.1.133-5062393634" 
+callId="b6e671a5e99d3a76d90edf9065b993c6@192.168.1.133" 
+firstLine="SIP/2.0 404 Not found" 
+>
+<![CDATA[SIP/2.0 404 Not found
+CSeq: 1 MESSAGE
+Call-ID: b6e671a5e99d3a76d90edf9065b993c6@192.168.1.133
+From: "jason2" <sip:jason2@192.168.1.133:5062>;tag=textclientv1.0
+To: "1001" <sip:1001@192.168.1.133:5060>
+Via: SIP/2.0/UDP 192.168.1.133:5062;branch=branch1
+Content-Length: 0
+
+]]>
+</message>
+

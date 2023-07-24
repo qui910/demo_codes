@@ -1,0 +1,265 @@
+<!-- Use the  Trace Viewer in src/tools/tracesviewer to view this  trace  
+Here are the stack configuration properties 
+javax.sip.IP_ADDRESS= null
+javax.sip.STACK_NAME= stack
+javax.sip.ROUTER_PATH= null
+javax.sip.OUTBOUND_PROXY= null
+-->
+<description
+ logDescription="stack"
+ name="stack"
+ auxInfo="null"/>
+ 
+<message
+from="192.168.1.133:8080" 
+to="192.168.1.133:5060" 
+time="1629962162780"
+isSender="true" 
+transactionId="z9hg4bk-343430-9fa97b9e2ca0bed7737814cc085fb0c6" 
+callId="e2c6c85c6572d0b172ca8d80f44311dc@192.168.1.133" 
+firstLine="REGISTER sip:192.168.1.133 SIP/2.0" 
+>
+<![CDATA[REGISTER sip:192.168.1.133 SIP/2.0
+To: "1002" <sip:1002@192.168.1.133>
+From: "1002" <sip:1002@192.168.1.133>;tag=-1550711110
+Via: SIP/2.0/UDP 192.168.1.133:8080;branch=z9hG4bK-343430-9fa97b9e2ca0bed7737814cc085fb0c6
+Call-ID: e2c6c85c6572d0b172ca8d80f44311dc@192.168.1.133
+CSeq: 1 REGISTER
+Contact: <sip:1002@192.168.1.133;transport=udp>
+Expires: 600
+Max-Forwards: 70
+Content-Length: 0
+
+]]>
+</message>
+
+<message
+from="192.168.1.133:8080" 
+to="192.168.1.133:5060" 
+time="1629962163302"
+isSender="true" 
+transactionId="z9hg4bk-343430-9fa97b9e2ca0bed7737814cc085fb0c6" 
+callId="e2c6c85c6572d0b172ca8d80f44311dc@192.168.1.133" 
+firstLine="REGISTER sip:192.168.1.133 SIP/2.0" 
+>
+<![CDATA[REGISTER sip:192.168.1.133 SIP/2.0
+To: "1002" <sip:1002@192.168.1.133>
+From: "1002" <sip:1002@192.168.1.133>;tag=-1550711110
+Via: SIP/2.0/UDP 192.168.1.133:8080;branch=z9hG4bK-343430-9fa97b9e2ca0bed7737814cc085fb0c6
+Call-ID: e2c6c85c6572d0b172ca8d80f44311dc@192.168.1.133
+CSeq: 1 REGISTER
+Contact: <sip:1002@192.168.1.133;transport=udp>
+Expires: 600
+Max-Forwards: 70
+Content-Length: 0
+
+]]>
+</message>
+
+<message
+from="192.168.1.133:8080" 
+to="192.168.1.133:5060" 
+time="1629962164302"
+isSender="true" 
+transactionId="z9hg4bk-343430-9fa97b9e2ca0bed7737814cc085fb0c6" 
+callId="e2c6c85c6572d0b172ca8d80f44311dc@192.168.1.133" 
+firstLine="REGISTER sip:192.168.1.133 SIP/2.0" 
+>
+<![CDATA[REGISTER sip:192.168.1.133 SIP/2.0
+To: "1002" <sip:1002@192.168.1.133>
+From: "1002" <sip:1002@192.168.1.133>;tag=-1550711110
+Via: SIP/2.0/UDP 192.168.1.133:8080;branch=z9hG4bK-343430-9fa97b9e2ca0bed7737814cc085fb0c6
+Call-ID: e2c6c85c6572d0b172ca8d80f44311dc@192.168.1.133
+CSeq: 1 REGISTER
+Contact: <sip:1002@192.168.1.133;transport=udp>
+Expires: 600
+Max-Forwards: 70
+Content-Length: 0
+
+]]>
+</message>
+
+<message
+from="192.168.1.133:8080" 
+to="192.168.1.133:5060" 
+time="1629962166325"
+isSender="true" 
+transactionId="z9hg4bk-343430-9fa97b9e2ca0bed7737814cc085fb0c6" 
+callId="e2c6c85c6572d0b172ca8d80f44311dc@192.168.1.133" 
+firstLine="REGISTER sip:192.168.1.133 SIP/2.0" 
+>
+<![CDATA[REGISTER sip:192.168.1.133 SIP/2.0
+To: "1002" <sip:1002@192.168.1.133>
+From: "1002" <sip:1002@192.168.1.133>;tag=-1550711110
+Via: SIP/2.0/UDP 192.168.1.133:8080;branch=z9hG4bK-343430-9fa97b9e2ca0bed7737814cc085fb0c6
+Call-ID: e2c6c85c6572d0b172ca8d80f44311dc@192.168.1.133
+CSeq: 1 REGISTER
+Contact: <sip:1002@192.168.1.133;transport=udp>
+Expires: 600
+Max-Forwards: 70
+Content-Length: 0
+
+]]>
+</message>
+
+<message
+from="192.168.1.133:8080" 
+to="192.168.1.133:5060" 
+time="1629962170357"
+isSender="true" 
+transactionId="z9hg4bk-343430-9fa97b9e2ca0bed7737814cc085fb0c6" 
+callId="e2c6c85c6572d0b172ca8d80f44311dc@192.168.1.133" 
+firstLine="REGISTER sip:192.168.1.133 SIP/2.0" 
+>
+<![CDATA[REGISTER sip:192.168.1.133 SIP/2.0
+To: "1002" <sip:1002@192.168.1.133>
+From: "1002" <sip:1002@192.168.1.133>;tag=-1550711110
+Via: SIP/2.0/UDP 192.168.1.133:8080;branch=z9hG4bK-343430-9fa97b9e2ca0bed7737814cc085fb0c6
+Call-ID: e2c6c85c6572d0b172ca8d80f44311dc@192.168.1.133
+CSeq: 1 REGISTER
+Contact: <sip:1002@192.168.1.133;transport=udp>
+Expires: 600
+Max-Forwards: 70
+Content-Length: 0
+
+]]>
+</message>
+
+<message
+from="192.168.1.133:8080" 
+to="192.168.1.133:5060" 
+time="1629962174374"
+isSender="true" 
+transactionId="z9hg4bk-343430-9fa97b9e2ca0bed7737814cc085fb0c6" 
+callId="e2c6c85c6572d0b172ca8d80f44311dc@192.168.1.133" 
+firstLine="REGISTER sip:192.168.1.133 SIP/2.0" 
+>
+<![CDATA[REGISTER sip:192.168.1.133 SIP/2.0
+To: "1002" <sip:1002@192.168.1.133>
+From: "1002" <sip:1002@192.168.1.133>;tag=-1550711110
+Via: SIP/2.0/UDP 192.168.1.133:8080;branch=z9hG4bK-343430-9fa97b9e2ca0bed7737814cc085fb0c6
+Call-ID: e2c6c85c6572d0b172ca8d80f44311dc@192.168.1.133
+CSeq: 1 REGISTER
+Contact: <sip:1002@192.168.1.133;transport=udp>
+Expires: 600
+Max-Forwards: 70
+Content-Length: 0
+
+]]>
+</message>
+
+<message
+from="192.168.1.133:8080" 
+to="192.168.1.133:5060" 
+time="1629962178382"
+isSender="true" 
+transactionId="z9hg4bk-343430-9fa97b9e2ca0bed7737814cc085fb0c6" 
+callId="e2c6c85c6572d0b172ca8d80f44311dc@192.168.1.133" 
+firstLine="REGISTER sip:192.168.1.133 SIP/2.0" 
+>
+<![CDATA[REGISTER sip:192.168.1.133 SIP/2.0
+To: "1002" <sip:1002@192.168.1.133>
+From: "1002" <sip:1002@192.168.1.133>;tag=-1550711110
+Via: SIP/2.0/UDP 192.168.1.133:8080;branch=z9hG4bK-343430-9fa97b9e2ca0bed7737814cc085fb0c6
+Call-ID: e2c6c85c6572d0b172ca8d80f44311dc@192.168.1.133
+CSeq: 1 REGISTER
+Contact: <sip:1002@192.168.1.133;transport=udp>
+Expires: 600
+Max-Forwards: 70
+Content-Length: 0
+
+]]>
+</message>
+
+<message
+from="192.168.1.133:8080" 
+to="192.168.1.133:5060" 
+time="1629962182383"
+isSender="true" 
+transactionId="z9hg4bk-343430-9fa97b9e2ca0bed7737814cc085fb0c6" 
+callId="e2c6c85c6572d0b172ca8d80f44311dc@192.168.1.133" 
+firstLine="REGISTER sip:192.168.1.133 SIP/2.0" 
+>
+<![CDATA[REGISTER sip:192.168.1.133 SIP/2.0
+To: "1002" <sip:1002@192.168.1.133>
+From: "1002" <sip:1002@192.168.1.133>;tag=-1550711110
+Via: SIP/2.0/UDP 192.168.1.133:8080;branch=z9hG4bK-343430-9fa97b9e2ca0bed7737814cc085fb0c6
+Call-ID: e2c6c85c6572d0b172ca8d80f44311dc@192.168.1.133
+CSeq: 1 REGISTER
+Contact: <sip:1002@192.168.1.133;transport=udp>
+Expires: 600
+Max-Forwards: 70
+Content-Length: 0
+
+]]>
+</message>
+
+<message
+from="192.168.1.133:8080" 
+to="192.168.1.133:5060" 
+time="1629962186385"
+isSender="true" 
+transactionId="z9hg4bk-343430-9fa97b9e2ca0bed7737814cc085fb0c6" 
+callId="e2c6c85c6572d0b172ca8d80f44311dc@192.168.1.133" 
+firstLine="REGISTER sip:192.168.1.133 SIP/2.0" 
+>
+<![CDATA[REGISTER sip:192.168.1.133 SIP/2.0
+To: "1002" <sip:1002@192.168.1.133>
+From: "1002" <sip:1002@192.168.1.133>;tag=-1550711110
+Via: SIP/2.0/UDP 192.168.1.133:8080;branch=z9hG4bK-343430-9fa97b9e2ca0bed7737814cc085fb0c6
+Call-ID: e2c6c85c6572d0b172ca8d80f44311dc@192.168.1.133
+CSeq: 1 REGISTER
+Contact: <sip:1002@192.168.1.133;transport=udp>
+Expires: 600
+Max-Forwards: 70
+Content-Length: 0
+
+]]>
+</message>
+
+<message
+from="192.168.1.133:8080" 
+to="192.168.1.133:5060" 
+time="1629962190386"
+isSender="true" 
+transactionId="z9hg4bk-343430-9fa97b9e2ca0bed7737814cc085fb0c6" 
+callId="e2c6c85c6572d0b172ca8d80f44311dc@192.168.1.133" 
+firstLine="REGISTER sip:192.168.1.133 SIP/2.0" 
+>
+<![CDATA[REGISTER sip:192.168.1.133 SIP/2.0
+To: "1002" <sip:1002@192.168.1.133>
+From: "1002" <sip:1002@192.168.1.133>;tag=-1550711110
+Via: SIP/2.0/UDP 192.168.1.133:8080;branch=z9hG4bK-343430-9fa97b9e2ca0bed7737814cc085fb0c6
+Call-ID: e2c6c85c6572d0b172ca8d80f44311dc@192.168.1.133
+CSeq: 1 REGISTER
+Contact: <sip:1002@192.168.1.133;transport=udp>
+Expires: 600
+Max-Forwards: 70
+Content-Length: 0
+
+]]>
+</message>
+
+<message
+from="192.168.1.133:8080" 
+to="192.168.1.133:5060" 
+time="1629962194387"
+isSender="true" 
+transactionId="z9hg4bk-343430-9fa97b9e2ca0bed7737814cc085fb0c6" 
+callId="e2c6c85c6572d0b172ca8d80f44311dc@192.168.1.133" 
+firstLine="REGISTER sip:192.168.1.133 SIP/2.0" 
+>
+<![CDATA[REGISTER sip:192.168.1.133 SIP/2.0
+To: "1002" <sip:1002@192.168.1.133>
+From: "1002" <sip:1002@192.168.1.133>;tag=-1550711110
+Via: SIP/2.0/UDP 192.168.1.133:8080;branch=z9hG4bK-343430-9fa97b9e2ca0bed7737814cc085fb0c6
+Call-ID: e2c6c85c6572d0b172ca8d80f44311dc@192.168.1.133
+CSeq: 1 REGISTER
+Contact: <sip:1002@192.168.1.133;transport=udp>
+Expires: 600
+Max-Forwards: 70
+Content-Length: 0
+
+]]>
+</message>
+

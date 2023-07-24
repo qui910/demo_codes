@@ -1,0 +1,298 @@
+DEBUG - BUILD TIMESTAMP = null
+DEBUG - Config Propeties = {}{gov.nist.javax.sip.TRACE_LEVEL=32, javax.sip.STACK_NAME=TextClient, gov.nist.javax.sip.SERVER_LOG=textclient.txt, javax.sip.IP_ADDRESS=192.168.1.133, gov.nist.javax.sip.DEBUG_LOG=textclientdebug.log}
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:236) [Here are the stack configuration properties 
+{}{gov.nist.javax.sip.TRACE_LEVEL=32, javax.sip.STACK_NAME=TextClient, gov.nist.javax.sip.SERVER_LOG=textclient.txt, javax.sip.IP_ADDRESS=192.168.1.133, gov.nist.javax.sip.DEBUG_LOG=textclientdebug.log}
+]
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:238) [ ]]>]
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:239) [</debug>]
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:240) [<description
+ logDescription="TextClient"
+ name="192.168.1.133" />
+]
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:242) [<debug>]
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:243) [<![CDATA[ ]
+INFO - value -1000 will be used for reliableConnectionKeepAliveTimeout stack property
+INFO - Setting Stack Thread priority to 10
+WARN - using default tls security policy
+WARN - Using default keystore type jks
+WARN - TLS settings will be inactive - TLS key store can not be configured. keyStoreType=jks javax.net.ssl.keyStore=null javax.net.ssl.keyStorePassword=null
+DEBUG - gov.nist.javax.sip.SipStackImpl.<init>(SipStackImpl.java:1286) [created Sip stack. Properties = {}{gov.nist.javax.sip.TRACE_LEVEL=32, javax.sip.STACK_NAME=TextClient, gov.nist.javax.sip.SERVER_LOG=textclient.txt, javax.sip.IP_ADDRESS=192.168.1.133, gov.nist.javax.sip.DEBUG_LOG=textclientdebug.log}]
+INFO - the sip stack timer gov.nist.javax.sip.stack.timers.DefaultSipTimer has been started
+DEBUG - gov.nist.javax.sip.SipStackImpl.createListeningPoint(SipStackImpl.java:1448) [createListeningPoint : address = 192.168.1.133 port = 5062 transport = udp]
+DEBUG - gov.nist.javax.sip.stack.UDPMessageProcessor.<init>(UDPMessageProcessor.java:128) [Max Message size is 65536]
+DEBUG - gov.nist.javax.sip.SipStackImpl.createListeningPoint(SipStackImpl.java:1486) [Created Message Processor: 192.168.1.133 port = 5062 transport = udp]
+DEBUG - gov.nist.javax.sip.stack.MessageProcessor.setListeningPoint(MessageProcessor.java:203) [setListeningPointgov.nist.javax.sip.stack.UDPMessageProcessor@1324409e listeningPoint = gov.nist.javax.sip.ListeningPointImpl@2c6a3f77]
+DEBUG - gov.nist.javax.sip.SipStackImpl.createSipProvider(SipStackImpl.java:1518) [createSipProvider: gov.nist.javax.sip.ListeningPointImpl@2c6a3f77]
+DEBUG - gov.nist.javax.sip.SipProviderImpl.addSipListener(SipProviderImpl.java:226) [add SipListener com.duoduo.demo.jsip.SipLayer@327471b5]
+DEBUG - BUILD TIMESTAMP = null
+DEBUG - Config Propeties = {}{gov.nist.javax.sip.TRACE_LEVEL=32, javax.sip.STACK_NAME=TextClient, gov.nist.javax.sip.SERVER_LOG=textclient.txt, javax.sip.IP_ADDRESS=169.254.89.253, gov.nist.javax.sip.DEBUG_LOG=textclientdebug.log}
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:236) [Here are the stack configuration properties 
+{}{gov.nist.javax.sip.TRACE_LEVEL=32, javax.sip.STACK_NAME=TextClient, gov.nist.javax.sip.SERVER_LOG=textclient.txt, javax.sip.IP_ADDRESS=169.254.89.253, gov.nist.javax.sip.DEBUG_LOG=textclientdebug.log}
+]
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:238) [ ]]>]
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:239) [</debug>]
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:240) [<description
+ logDescription="TextClient"
+ name="169.254.89.253" />
+]
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:242) [<debug>]
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:243) [<![CDATA[ ]
+INFO - value -1000 will be used for reliableConnectionKeepAliveTimeout stack property
+INFO - Setting Stack Thread priority to 10
+WARN - using default tls security policy
+WARN - Using default keystore type jks
+WARN - TLS settings will be inactive - TLS key store can not be configured. keyStoreType=jks javax.net.ssl.keyStore=null javax.net.ssl.keyStorePassword=null
+DEBUG - gov.nist.javax.sip.SipStackImpl.<init>(SipStackImpl.java:1286) [created Sip stack. Properties = {}{gov.nist.javax.sip.TRACE_LEVEL=32, javax.sip.STACK_NAME=TextClient, gov.nist.javax.sip.SERVER_LOG=textclient.txt, javax.sip.IP_ADDRESS=169.254.89.253, gov.nist.javax.sip.DEBUG_LOG=textclientdebug.log}]
+INFO - the sip stack timer gov.nist.javax.sip.stack.timers.DefaultSipTimer has been started
+DEBUG - gov.nist.javax.sip.SipStackImpl.createListeningPoint(SipStackImpl.java:1448) [createListeningPoint : address = 169.254.89.253 port = 5062 transport = udp]
+DEBUG - gov.nist.javax.sip.stack.UDPMessageProcessor.<init>(UDPMessageProcessor.java:128) [Max Message size is 65536]
+DEBUG - gov.nist.javax.sip.SipStackImpl.createListeningPoint(SipStackImpl.java:1486) [Created Message Processor: 169.254.89.253 port = 5062 transport = udp]
+DEBUG - gov.nist.javax.sip.stack.MessageProcessor.setListeningPoint(MessageProcessor.java:203) [setListeningPointgov.nist.javax.sip.stack.UDPMessageProcessor@4e04a765 listeningPoint = gov.nist.javax.sip.ListeningPointImpl@783e6358]
+DEBUG - gov.nist.javax.sip.SipStackImpl.createSipProvider(SipStackImpl.java:1518) [createSipProvider: gov.nist.javax.sip.ListeningPointImpl@783e6358]
+DEBUG - gov.nist.javax.sip.SipProviderImpl.addSipListener(SipProviderImpl.java:226) [add SipListener com.duoduo.demo.jsip.SipLayer@77b52d12]
+DEBUG - BUILD TIMESTAMP = null
+DEBUG - Config Propeties = {}{gov.nist.javax.sip.TRACE_LEVEL=32, javax.sip.STACK_NAME=TextClient, gov.nist.javax.sip.SERVER_LOG=textclient.txt, javax.sip.IP_ADDRESS=169.254.89.253, gov.nist.javax.sip.DEBUG_LOG=textclientdebug.log}
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:236) [Here are the stack configuration properties 
+{}{gov.nist.javax.sip.TRACE_LEVEL=32, javax.sip.STACK_NAME=TextClient, gov.nist.javax.sip.SERVER_LOG=textclient.txt, javax.sip.IP_ADDRESS=169.254.89.253, gov.nist.javax.sip.DEBUG_LOG=textclientdebug.log}
+]
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:238) [ ]]>]
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:239) [</debug>]
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:240) [<description
+ logDescription="TextClient"
+ name="169.254.89.253" />
+]
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:242) [<debug>]
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:243) [<![CDATA[ ]
+INFO - value -1000 will be used for reliableConnectionKeepAliveTimeout stack property
+INFO - Setting Stack Thread priority to 10
+WARN - using default tls security policy
+WARN - Using default keystore type jks
+WARN - TLS settings will be inactive - TLS key store can not be configured. keyStoreType=jks javax.net.ssl.keyStore=null javax.net.ssl.keyStorePassword=null
+DEBUG - gov.nist.javax.sip.SipStackImpl.<init>(SipStackImpl.java:1286) [created Sip stack. Properties = {}{gov.nist.javax.sip.TRACE_LEVEL=32, javax.sip.STACK_NAME=TextClient, gov.nist.javax.sip.SERVER_LOG=textclient.txt, javax.sip.IP_ADDRESS=169.254.89.253, gov.nist.javax.sip.DEBUG_LOG=textclientdebug.log}]
+INFO - the sip stack timer gov.nist.javax.sip.stack.timers.DefaultSipTimer has been started
+DEBUG - gov.nist.javax.sip.SipStackImpl.createListeningPoint(SipStackImpl.java:1448) [createListeningPoint : address = 169.254.89.253 port = 5062 transport = udp]
+DEBUG - gov.nist.javax.sip.stack.UDPMessageProcessor.<init>(UDPMessageProcessor.java:128) [Max Message size is 65536]
+DEBUG - gov.nist.javax.sip.SipStackImpl.createListeningPoint(SipStackImpl.java:1486) [Created Message Processor: 169.254.89.253 port = 5062 transport = udp]
+DEBUG - gov.nist.javax.sip.stack.MessageProcessor.setListeningPoint(MessageProcessor.java:203) [setListeningPointgov.nist.javax.sip.stack.UDPMessageProcessor@4e04a765 listeningPoint = gov.nist.javax.sip.ListeningPointImpl@783e6358]
+DEBUG - gov.nist.javax.sip.SipStackImpl.createSipProvider(SipStackImpl.java:1518) [createSipProvider: gov.nist.javax.sip.ListeningPointImpl@783e6358]
+DEBUG - gov.nist.javax.sip.SipProviderImpl.addSipListener(SipProviderImpl.java:226) [add SipListener com.duoduo.demo.jsip.SipLayer@77b52d12]
+DEBUG - BUILD TIMESTAMP = null
+DEBUG - Config Propeties = {}{gov.nist.javax.sip.TRACE_LEVEL=32, javax.sip.STACK_NAME=TextClient, gov.nist.javax.sip.SERVER_LOG=textclient.txt, javax.sip.IP_ADDRESS=192.168.1.133, gov.nist.javax.sip.DEBUG_LOG=textclientdebug.log}
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:236) [Here are the stack configuration properties 
+{}{gov.nist.javax.sip.TRACE_LEVEL=32, javax.sip.STACK_NAME=TextClient, gov.nist.javax.sip.SERVER_LOG=textclient.txt, javax.sip.IP_ADDRESS=192.168.1.133, gov.nist.javax.sip.DEBUG_LOG=textclientdebug.log}
+]
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:238) [ ]]>]
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:239) [</debug>]
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:240) [<description
+ logDescription="TextClient"
+ name="192.168.1.133" />
+]
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:242) [<debug>]
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:243) [<![CDATA[ ]
+INFO - value -1000 will be used for reliableConnectionKeepAliveTimeout stack property
+INFO - Setting Stack Thread priority to 10
+WARN - using default tls security policy
+WARN - Using default keystore type jks
+WARN - TLS settings will be inactive - TLS key store can not be configured. keyStoreType=jks javax.net.ssl.keyStore=null javax.net.ssl.keyStorePassword=null
+DEBUG - gov.nist.javax.sip.SipStackImpl.<init>(SipStackImpl.java:1286) [created Sip stack. Properties = {}{gov.nist.javax.sip.TRACE_LEVEL=32, javax.sip.STACK_NAME=TextClient, gov.nist.javax.sip.SERVER_LOG=textclient.txt, javax.sip.IP_ADDRESS=192.168.1.133, gov.nist.javax.sip.DEBUG_LOG=textclientdebug.log}]
+INFO - the sip stack timer gov.nist.javax.sip.stack.timers.DefaultSipTimer has been started
+DEBUG - gov.nist.javax.sip.SipStackImpl.createListeningPoint(SipStackImpl.java:1448) [createListeningPoint : address = 192.168.1.133 port = 5062 transport = udp]
+DEBUG - gov.nist.javax.sip.stack.UDPMessageProcessor.<init>(UDPMessageProcessor.java:128) [Max Message size is 65536]
+DEBUG - gov.nist.javax.sip.SipStackImpl.createListeningPoint(SipStackImpl.java:1486) [Created Message Processor: 192.168.1.133 port = 5062 transport = udp]
+DEBUG - gov.nist.javax.sip.stack.MessageProcessor.setListeningPoint(MessageProcessor.java:203) [setListeningPointgov.nist.javax.sip.stack.UDPMessageProcessor@4e04a765 listeningPoint = gov.nist.javax.sip.ListeningPointImpl@783e6358]
+DEBUG - gov.nist.javax.sip.SipStackImpl.createSipProvider(SipStackImpl.java:1518) [createSipProvider: gov.nist.javax.sip.ListeningPointImpl@783e6358]
+DEBUG - gov.nist.javax.sip.SipProviderImpl.addSipListener(SipProviderImpl.java:226) [add SipListener com.duoduo.demo.jsip.SipLayer@77b52d12]
+DEBUG - BUILD TIMESTAMP = null
+DEBUG - Config Propeties = {}{gov.nist.javax.sip.TRACE_LEVEL=32, javax.sip.STACK_NAME=TextClient, gov.nist.javax.sip.SERVER_LOG=textclient.txt, javax.sip.IP_ADDRESS=192.168.1.133, gov.nist.javax.sip.DEBUG_LOG=textclientdebug.log}
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:236) [Here are the stack configuration properties 
+{}{gov.nist.javax.sip.TRACE_LEVEL=32, javax.sip.STACK_NAME=TextClient, gov.nist.javax.sip.SERVER_LOG=textclient.txt, javax.sip.IP_ADDRESS=192.168.1.133, gov.nist.javax.sip.DEBUG_LOG=textclientdebug.log}
+]
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:238) [ ]]>]
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:239) [</debug>]
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:240) [<description
+ logDescription="TextClient"
+ name="192.168.1.133" />
+]
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:242) [<debug>]
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:243) [<![CDATA[ ]
+INFO - value -1000 will be used for reliableConnectionKeepAliveTimeout stack property
+INFO - Setting Stack Thread priority to 10
+WARN - using default tls security policy
+WARN - Using default keystore type jks
+WARN - TLS settings will be inactive - TLS key store can not be configured. keyStoreType=jks javax.net.ssl.keyStore=null javax.net.ssl.keyStorePassword=null
+DEBUG - gov.nist.javax.sip.SipStackImpl.<init>(SipStackImpl.java:1286) [created Sip stack. Properties = {}{gov.nist.javax.sip.TRACE_LEVEL=32, javax.sip.STACK_NAME=TextClient, gov.nist.javax.sip.SERVER_LOG=textclient.txt, javax.sip.IP_ADDRESS=192.168.1.133, gov.nist.javax.sip.DEBUG_LOG=textclientdebug.log}]
+INFO - the sip stack timer gov.nist.javax.sip.stack.timers.DefaultSipTimer has been started
+DEBUG - gov.nist.javax.sip.SipStackImpl.createListeningPoint(SipStackImpl.java:1448) [createListeningPoint : address = 192.168.1.133 port = 5062 transport = udp]
+DEBUG - gov.nist.javax.sip.stack.UDPMessageProcessor.<init>(UDPMessageProcessor.java:128) [Max Message size is 65536]
+DEBUG - gov.nist.javax.sip.SipStackImpl.createListeningPoint(SipStackImpl.java:1486) [Created Message Processor: 192.168.1.133 port = 5062 transport = udp]
+DEBUG - gov.nist.javax.sip.stack.MessageProcessor.setListeningPoint(MessageProcessor.java:203) [setListeningPointgov.nist.javax.sip.stack.UDPMessageProcessor@5be6e01c listeningPoint = gov.nist.javax.sip.ListeningPointImpl@1c93084c]
+DEBUG - gov.nist.javax.sip.SipStackImpl.createSipProvider(SipStackImpl.java:1518) [createSipProvider: gov.nist.javax.sip.ListeningPointImpl@1c93084c]
+DEBUG - gov.nist.javax.sip.SipProviderImpl.addSipListener(SipProviderImpl.java:226) [add SipListener com.duoduo.demo.jsip.SipLayer@be64738]
+DEBUG - gov.nist.javax.sip.stack.DefaultRouter.getNextHop(DefaultRouter.java:240) [Used request-URI for nextHop = 192.168.1.133:5060/udp]
+DEBUG - gov.nist.javax.sip.stack.UDPMessageChannel.<init>(UDPMessageChannel.java:258) [Creating message channel 192.168.1.133/5060]
+DEBUG - gov.nist.javax.sip.stack.UDPMessageChannel.sendMessage(UDPMessageChannel.java:796) [sendMessage 192.168.1.133/5060
+messageSize =  421 message = MESSAGE sip:1001@192.168.1.133:5060;transport=udp SIP/2.0
+Call-ID: 11ba6ec53b3fe5204b72cda47d7c7015@192.168.1.133
+CSeq: 1 MESSAGE
+From: "jason2" <sip:jason2@192.168.1.133:5062>;tag=textclientv1.0
+To: "1001" <sip:1001@192.168.1.133:5060>
+Via: SIP/2.0/UDP 192.168.1.133:5062;branch=branch1
+Max-Forwards: 70
+Contact: "jason2" <sip:jason2@192.168.1.133:5062>
+Content-Type: text/plain
+Content-Length: 10
+
+1234567abc]
+DEBUG - gov.nist.javax.sip.stack.UDPMessageChannel.sendMessage(UDPMessageChannel.java:800) [*******************
+]
+INFO - <message
+from="192.168.1.133:5062" 
+to="192.168.1.133:5060" 
+time="1632710819165"
+isSender="true" 
+transactionId="textclientv1.0-11ba6ec53b3fe5204b72cda47d7c7015-192.168.1.133-1-message-192.168.1.133-50623935" 
+callId="11ba6ec53b3fe5204b72cda47d7c7015@192.168.1.133" 
+firstLine="MESSAGE sip:1001@192.168.1.133:5060;transport=udp SIP/2.0" 
+>
+<![CDATA[MESSAGE sip:1001@192.168.1.133:5060;transport=udp SIP/2.0
+Call-ID: 11ba6ec53b3fe5204b72cda47d7c7015@192.168.1.133
+CSeq: 1 MESSAGE
+From: "jason2" <sip:jason2@192.168.1.133:5062>;tag=textclientv1.0
+To: "1001" <sip:1001@192.168.1.133:5060>
+Via: SIP/2.0/UDP 192.168.1.133:5062;branch=branch1
+Max-Forwards: 70
+Contact: "jason2" <sip:jason2@192.168.1.133:5062>
+Content-Type: text/plain
+Content-Length: 10
+
+]]>
+</message>
+
+DEBUG - gov.nist.javax.sip.SipProviderImpl.sendRequest(SipProviderImpl.java:748) [done sending MESSAGE to hop 192.168.1.133:5060/udp]
+DEBUG - BUILD TIMESTAMP = null
+DEBUG - Config Propeties = {}{gov.nist.javax.sip.TRACE_LEVEL=32, javax.sip.STACK_NAME=TextClient, gov.nist.javax.sip.SERVER_LOG=textclient.txt, javax.sip.IP_ADDRESS=192.168.1.133, gov.nist.javax.sip.DEBUG_LOG=textclientdebug.log}
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:236) [Here are the stack configuration properties 
+{}{gov.nist.javax.sip.TRACE_LEVEL=32, javax.sip.STACK_NAME=TextClient, gov.nist.javax.sip.SERVER_LOG=textclient.txt, javax.sip.IP_ADDRESS=192.168.1.133, gov.nist.javax.sip.DEBUG_LOG=textclientdebug.log}
+]
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:238) [ ]]>]
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:239) [</debug>]
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:240) [<description
+ logDescription="TextClient"
+ name="192.168.1.133" />
+]
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:242) [<debug>]
+DEBUG - gov.nist.javax.sip.stack.ServerLog.checkLogFile(ServerLog.java:243) [<![CDATA[ ]
+INFO - value -1000 will be used for reliableConnectionKeepAliveTimeout stack property
+INFO - Setting Stack Thread priority to 10
+WARN - using default tls security policy
+WARN - Using default keystore type jks
+WARN - TLS settings will be inactive - TLS key store can not be configured. keyStoreType=jks javax.net.ssl.keyStore=null javax.net.ssl.keyStorePassword=null
+DEBUG - gov.nist.javax.sip.SipStackImpl.<init>(SipStackImpl.java:1286) [created Sip stack. Properties = {}{gov.nist.javax.sip.TRACE_LEVEL=32, javax.sip.STACK_NAME=TextClient, gov.nist.javax.sip.SERVER_LOG=textclient.txt, javax.sip.IP_ADDRESS=192.168.1.133, gov.nist.javax.sip.DEBUG_LOG=textclientdebug.log}]
+INFO - the sip stack timer gov.nist.javax.sip.stack.timers.DefaultSipTimer has been started
+DEBUG - gov.nist.javax.sip.SipStackImpl.createListeningPoint(SipStackImpl.java:1448) [createListeningPoint : address = 192.168.1.133 port = 5062 transport = udp]
+DEBUG - gov.nist.javax.sip.stack.UDPMessageProcessor.<init>(UDPMessageProcessor.java:128) [Max Message size is 65536]
+DEBUG - gov.nist.javax.sip.SipStackImpl.createListeningPoint(SipStackImpl.java:1486) [Created Message Processor: 192.168.1.133 port = 5062 transport = udp]
+DEBUG - gov.nist.javax.sip.stack.MessageProcessor.setListeningPoint(MessageProcessor.java:203) [setListeningPointgov.nist.javax.sip.stack.UDPMessageProcessor@4e04a765 listeningPoint = gov.nist.javax.sip.ListeningPointImpl@783e6358]
+DEBUG - gov.nist.javax.sip.SipStackImpl.createSipProvider(SipStackImpl.java:1518) [createSipProvider: gov.nist.javax.sip.ListeningPointImpl@783e6358]
+DEBUG - gov.nist.javax.sip.SipProviderImpl.addSipListener(SipProviderImpl.java:226) [add SipListener com.duoduo.demo.jsip.SipLayer@77b52d12]
+DEBUG - gov.nist.javax.sip.stack.DefaultRouter.getNextHop(DefaultRouter.java:240) [Used request-URI for nextHop = 192.168.1.133:5060/udp]
+DEBUG - gov.nist.javax.sip.stack.UDPMessageChannel.<init>(UDPMessageChannel.java:258) [Creating message channel 192.168.1.133/5060]
+DEBUG - gov.nist.javax.sip.stack.UDPMessageChannel.sendMessage(UDPMessageChannel.java:796) [sendMessage 192.168.1.133/5060
+messageSize =  414 message = MESSAGE sip:1001@192.168.1.133:5060;transport=udp SIP/2.0
+Call-ID: b6e671a5e99d3a76d90edf9065b993c6@192.168.1.133
+CSeq: 1 MESSAGE
+From: "jason2" <sip:jason2@192.168.1.133:5062>;tag=textclientv1.0
+To: "1001" <sip:1001@192.168.1.133:5060>
+Via: SIP/2.0/UDP 192.168.1.133:5062;branch=branch1
+Max-Forwards: 70
+Contact: "jason2" <sip:jason2@192.168.1.133:5062>
+Content-Type: text/plain
+Content-Length: 4
+
+1234]
+DEBUG - gov.nist.javax.sip.stack.UDPMessageChannel.sendMessage(UDPMessageChannel.java:800) [*******************
+]
+INFO - <message
+from="192.168.1.133:5062" 
+to="192.168.1.133:5060" 
+time="1632710922109"
+isSender="true" 
+transactionId="textclientv1.0-b6e671a5e99d3a76d90edf9065b993c6-192.168.1.133-1-message-192.168.1.133-5062393634" 
+callId="b6e671a5e99d3a76d90edf9065b993c6@192.168.1.133" 
+firstLine="MESSAGE sip:1001@192.168.1.133:5060;transport=udp SIP/2.0" 
+>
+<![CDATA[MESSAGE sip:1001@192.168.1.133:5060;transport=udp SIP/2.0
+Call-ID: b6e671a5e99d3a76d90edf9065b993c6@192.168.1.133
+CSeq: 1 MESSAGE
+From: "jason2" <sip:jason2@192.168.1.133:5062>;tag=textclientv1.0
+To: "1001" <sip:1001@192.168.1.133:5060>
+Via: SIP/2.0/UDP 192.168.1.133:5062;branch=branch1
+Max-Forwards: 70
+Contact: "jason2" <sip:jason2@192.168.1.133:5062>
+Content-Type: text/plain
+Content-Length: 4
+
+]]>
+</message>
+
+DEBUG - gov.nist.javax.sip.SipProviderImpl.sendRequest(SipProviderImpl.java:748) [done sending MESSAGE to hop 192.168.1.133:5060/udp]
+DEBUG - gov.nist.javax.sip.stack.UDPMessageChannel.processIncomingDataPacket(UDPMessageChannel.java:347) [UDPMessageChannel: processIncomingDataPacket : peerAddress = 192.168.1.133/5060 Length = 279]
+INFO - <message
+from="192.168.1.133:5060" 
+to="192.168.1.133:5062" 
+time="1632711249264"
+isSender="false" 
+transactionId="textclientv1.0-b6e671a5e99d3a76d90edf9065b993c6-192.168.1.133-1-message-192.168.1.133-5062393634" 
+callId="b6e671a5e99d3a76d90edf9065b993c6@192.168.1.133" 
+firstLine="SIP/2.0 404 Not found" 
+>
+<![CDATA[SIP/2.0 404 Not found
+CSeq: 1 MESSAGE
+Call-ID: b6e671a5e99d3a76d90edf9065b993c6@192.168.1.133
+From: "jason2" <sip:jason2@192.168.1.133:5062>;tag=textclientv1.0
+To: "1001" <sip:1001@192.168.1.133:5060>
+Via: SIP/2.0/UDP 192.168.1.133:5062;branch=branch1
+Content-Length: 0
+
+]]>
+</message>
+
+DEBUG - gov.nist.javax.sip.stack.SIPTransactionStack.findTransaction(SIPTransactionStack.java:1216) [clientTx: looking for key textclientv1.0-b6e671a5e99d3a76d90edf9065b993c6-192.168.1.133-1-message-192.168.1.133-5062393634]
+DEBUG - gov.nist.javax.sip.stack.SIPTransactionStack.findTransaction(SIPTransactionStack.java:1243) [findTransaction: returning  : null]
+DEBUG - gov.nist.javax.sip.NistSipMessageFactoryImpl.newSIPServerResponse(NistSipMessageFactoryImpl.java:106) [Found Transaction null for SIP/2.0 404 Not found
+CSeq: 1 MESSAGE
+Call-ID: b6e671a5e99d3a76d90edf9065b993c6@192.168.1.133
+From: "jason2" <sip:jason2@192.168.1.133:5062>;tag=textclientv1.0
+To: "1001" <sip:1001@192.168.1.133:5060>
+Via: SIP/2.0/UDP 192.168.1.133:5062;branch=branch1
+Content-Length: 0
+
+]
+DEBUG - gov.nist.javax.sip.stack.SIPTransactionStack.getDialog(SIPTransactionStack.java:1004) [getDialog(b6e671a5e99d3a76d90edf9065b993c6@192.168.1.133:textclientv1.0) : returning null]
+DEBUG - gov.nist.javax.sip.DialogFilter.processResponse(DialogFilter.java:1531) [PROCESSING INCOMING RESPONSE: SIP/2.0 404 Not found
+CSeq: 1 MESSAGE
+Call-ID: b6e671a5e99d3a76d90edf9065b993c6@192.168.1.133
+From: "jason2" <sip:jason2@192.168.1.133:5062>;tag=textclientv1.0
+To: "1001" <sip:1001@192.168.1.133:5060>
+Via: SIP/2.0/UDP 192.168.1.133:5062;branch=branch1
+Content-Length: 0
+
+]
+DEBUG - gov.nist.javax.sip.DialogFilter.processResponse(DialogFilter.java:1584) [Transaction = null sipDialog = null]
+DEBUG - gov.nist.javax.sip.DialogFilter.processResponse(DialogFilter.java:1721) [sending response SIP/2.0 404 Not found
+CSeq: 1 MESSAGE
+Call-ID: b6e671a5e99d3a76d90edf9065b993c6@192.168.1.133
+From: "jason2" <sip:jason2@192.168.1.133:5062>;tag=textclientv1.0
+To: "1001" <sip:1001@192.168.1.133:5060>
+Via: SIP/2.0/UDP 192.168.1.133:5062;branch=branch1
+Content-Length: 0
+
+ to TU for processing ]
+DEBUG - gov.nist.javax.sip.SipProviderImpl.handleEvent(SipProviderImpl.java:163) [handleEvent gov.nist.javax.sip.ResponseEventExt[source=gov.nist.javax.sip.SipProviderImpl@71282628]currentTransaction = nullthis.sipListener = com.duoduo.demo.jsip.SipLayer@77b52d12sipEvent.source = gov.nist.javax.sip.SipProviderImpl@71282628]
+DEBUG - gov.nist.javax.sip.SipProviderImpl.handleEvent(SipProviderImpl.java:173) [Dialog = null]
+DEBUG - [LogWriter.java:92][CommonLogger.java:111][SipProviderImpl.java:175][DialogFilter.java:1753][UDPMessageChannel.java:603][UDPMessageChannel.java:512][UDPMessageChannel.java:317][Thread.java:748]
+DEBUG - gov.nist.javax.sip.EventScanner.addEvent(EventScanner.java:89) [addEvent gov.nist.javax.sip.EventWrapper@7d1654cb]
+DEBUG - gov.nist.javax.sip.EventScanner.run(EventScanner.java:514) [Processing gov.nist.javax.sip.EventWrapper@7d1654cbnevents 1]
+DEBUG - gov.nist.javax.sip.EventScanner.deliverEvent(EventScanner.java:137) [sipEvent = gov.nist.javax.sip.ResponseEventExt[source=gov.nist.javax.sip.SipProviderImpl@71282628]source = gov.nist.javax.sip.SipProviderImpl@71282628]
+DEBUG - gov.nist.javax.sip.EventScanner.deliverEvent(EventScanner.java:287) [Calling listener com.duoduo.demo.jsip.SipLayer@77b52d12 for SIP/2.0 404 Not found
+]
