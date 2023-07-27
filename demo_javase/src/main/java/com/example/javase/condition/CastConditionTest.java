@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
 /**
- * @author pangruidong
+ * Test for Switch Cast Condition
  * @version 1.0
  * @date 2023-04-25 14:42
  * @since 1.8
