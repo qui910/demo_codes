@@ -396,9 +396,10 @@ demo.demofunction(new SecurityTransporter(/*省略参数*/););
 
 根据接口隔离原则，当一个接口太大时，我们需要将它分割成一些更细小的接口，使用该接口的客户端仅需知道与之相关的方法即可。每一个接口应该承担一种相对独立的角色，不干不该干的事，该干的事都要干。这里的“接口”往往有两种不同的含义：一种是指一个类型所具有的方法特征的集合，仅仅是一种逻辑上的抽象；另外一种是指某种语言具体的“接口”定义，有严格的定义和结构，比如Java语言中的interface。对于这两种不同的含义，ISP的表达方式以及含义都有所不同：
 
-(1) 当把“接口”理解成一个类型所提供的所有方法特征的集合的时候，这就是一种逻辑上的概念，接口的划分将直接带来类型的划分。可以把接口理解成角色，一个接口只能代表一个角色，每个角色都有它特定的一个接口，此时，这个原则可以叫做“角色隔离原则”。
+1. 当把“接口”理解成一个类型所提供的所有方法特征的集合的时候，这就是一种逻辑上的概念，接口的划分将直接带来类型的划分。可以把接口理解成角色，一个接口只能代表一个角色，每个角色都有它特定的一个接口，此时，这个原则可以叫做“角色隔离原则”。
 
-(2) 如果把“接口”理解成狭义的特定语言的接口，那么ISP表达的意思是指接口仅仅提供客户端需要的行为，客户端不需要的行为则隐藏起来，应当为客户端提供尽可能小的单独的接口，而不要提供大的总接口。在面向对象编程语言中，实现一个接口就需要实现该接口中定义的所有方法，因此大的总接口使用起来不一定很方便，为了使接口的职责单一，需要将大接口中的方法根据其职责不同分别放在不同的小接口中，以确保每个接口使用起来都较为方便，并都承担某一单一角色。接口应该尽量细化，同时接口中的方法应该尽量少，每个接口中只包含一个客户端（如子模块或业务逻辑类）所需的方法即可，这种机制也称为“定制服务”，即为不同的客户端提供宽窄不同的接口。
+2. 如果把“接口”理解成狭义的特定语言的接口，那么ISP
+表达的意思是指接口仅仅提供客户端需要的行为，客户端不需要的行为则隐藏起来，应当为客户端提供尽可能小的单独的接口，而不要提供大的总接口。在面向对象编程语言中，实现一个接口就需要实现该接口中定义的所有方法，因此大的总接口使用起来不一定很方便，为了使接口的职责单一，需要将大接口中的方法根据其职责不同分别放在不同的小接口中，以确保每个接口使用起来都较为方便，并都承担某一单一角色。接口应该尽量细化，同时接口中的方法应该尽量少，每个接口中只包含一个客户端（如子模块或业务逻辑类）所需的方法即可，这种机制也称为“定制服务”，即为不同的客户端提供宽窄不同的接口。
 
 在使用接口隔离原则时，我们需要注意控制接口的粒度，接口不能太小，如果太小会导致系统中接口泛滥，不利于维护；接口也不能太大，太大的接口将违背接口隔离原则，灵活性较差，使用起来很不方便。一般而言，接口中仅包含为某一类用户定制的方法即可，不应该强迫客户依赖于那些它们不用的方法。
 
@@ -473,10 +474,121 @@ public Long average(Colletion<Long> dataSet) { //... }
 
 ## 2.7 迪米特法则 LKP
 迪米特法则又称为最少知识原则(LeastKnowledge Principle, LKP)，其定义如下：
->迪米特法则(Law of Demeter, LoD)：一个软件实体应当尽可能少地与其他实体发生相互作用。
+>迪米特法则(Law of Demeter, LoD)：一个软件实体应当尽可能少地与其他实体发生相互作用。即高内聚，低耦合
+
+高内聚 低耦合是比较通用的设计思想，可以用来指导不同的粒度的代码的设计和开发的工作，比如系统，模块，类，甚至是函数。也可以去使用到不同的开发场景当中，比如微服务，框架，组件，类库等等。在这个原则当中，高内聚指的是类本身的设计，低耦合指的是类和类之间的依赖关系的设计。
+
+如果一个系统符合迪米特法则，那么当其中某一个模块发生修改时，就会尽量少地影响其他模块，扩展会相对容易，这是对软件实体之间通信的限制，迪米特法则要求限制软件实体之间通信的宽度和深度。迪米特法则可降低系统的耦合度，使类与类之间保持松散的耦合关系。
+
+迪米特法则还有几种定义形式，包括：不要和“陌生人”说话、只与你的直接朋友通信等，在迪米特法则中，对于一个对象，其朋友包括以下几类：
+- (1) 当前对象本身(this)；
+- (2) 以参数形式传入到当前对象方法中的对象；
+- (3) 当前对象的成员对象；
+- (4) 如果当前对象的成员对象是一个集合，那么集合中的元素也都是朋友；
+- (5) 当前对象所创建的对象。
+
+任何一个对象，如果满足上面的条件之一，就是当前对象的“朋友”，否则就是“陌生人”。在应用迪米特法则时，一个对象只能与直接朋友发生交互，不要与“陌生人”发生直接交互，这样做可以降低系统的耦合度，一个对象的改变不会给太多其他对象带来影响。
+
+迪米特法则要求我们在设计系统时，应该尽量减少对象之间的交互，如果两个对象之间不必彼此直接通信，那么这两个对象就不应当发生任何直接的相互作用，如果其中的一个对象需要调用另一个对象的某一个方法的话，可以通过第三者转发这个调用。简言之，就是通过引入一个合理的第三者来降低现有对象之间的耦合度。
+
+在将迪米特法则运用到系统设计中时，要注意下面的几点：在类的划分上，应当尽量创建松耦合的类，类之间的耦合度越低，就越有利于复用，一个处在松耦合中的类一旦被修改，不会对关联的类造成太大波及；在类的结构设计上，每一个类都应当尽量降低其成员变量和成员函数的访问权限；在类的设计上，只要有可能，一个类型应当设计成不变类；在对其他类的引用上，一个对象对其他对象的引用应当降到最低。
+
+### 2.7.1 什么是高内聚？
+指的是相近的功能应该放到同一个类当中，不相近的功能不要放在同一类。代码集中相对来说就会更加容易维护了。
+
+### 2.7.2 什么是低耦合？
+类和类之间的依赖关系简单清晰，即尽管两个类之间有依赖关系。一个类的代码的改动不会或者很少导致依赖类的代码的改动。
+
+### 2.7.3 内聚和耦合的关系
+![内聚耦合关系](https://i.loli.net/2020/03/23/yZVTqaQSgvbtE4l.png)
+
+如图所示，左侧就是很好的高内聚低耦合的范例，我们将类最小化，即每个类只做一件事情，这样子其他依赖就会少很多。在修改或增加功能的时候，就不会对其他的类造成很大的影响。
+
+### 2.7.4 网络示例
+```java
+public class NetworkTransporter {
+    // 存在问题，NetworkTransporter作为一个底层类，不应该依赖于HtmlRequest类；与之相反的，因为其实他需要的是string address，以及byte的数组，那我们应该直接提供这些primitive type的数据
+    public Byte[] send(HtmlRequest htmlRequest) {
+      //...
+    }
+}
+
+public class HtmlDownloader {
+  private NetworkTransporter transporter;//通过构造函数或IOC注入
+
+  public Html downloadHtml(String url) {
+  // 根据上面NetworkTransporter我们希望做的改动，这里传入的不应该是HtmlRequest类的实例了
+    Byte[] rawHtml = transporter.send(new HtmlRequest(url));
+    return new Html(rawHtml);
+  }
+}
+
+public class Document {
+  private Html html;
+  private String url;
+
+  public Document(String url) {
+    this.url = url;
+    // downloader.downloadHtml逻辑复杂，不应该放在构造函数当中，也会很不好测试
+    // 构造函数中使用new来做实例，违反了基于接口而非实现编程的原则
+    HtmlDownloader downloader = new HtmlDownloader();
+    this.html = downloader.downloadHtml(url);
+  }
+  //...
+}
+```
+修改以后的代码：
+```java
+public class NetworkTransporter {
+    // 省略属性和其他方法...
+    public Byte[] send(String address, Byte[] data) {
+      //...
+    }
+}
 
 
+public class HtmlDownloader {
+  private NetworkTransporter transporter;//通过构造函数或IOC注入
+
+  // HtmlDownloader这里也要有相应的修改
+  public Html downloadHtml(String url) {
+    HtmlRequest htmlRequest = new HtmlRequest(url);
+    Byte[] rawHtml = transporter.send(
+      htmlRequest.getAddress(), htmlRequest.getContent().getBytes());
+    return new Html(rawHtml);
+  }
+}
+
+
+public class Document {
+  private Html html;
+  private String url;
+
+  public Document(String url, Html html) {
+    this.html = html;
+    this.url = url;
+  }
+  //...
+}
+
+// 通过一个工厂方法来创建Document
+public class DocumentFactory {
+  private HtmlDownloader downloader;
+
+  public DocumentFactory(HtmlDownloader downloader) {
+    this.downloader = downloader;
+  }
+
+  public Document createDocument(String url) {
+    Html html = downloader.downloadHtml(url);
+    return new Document(url, html);
+  }
+}
+```
+
+# 参考
+- [Leilei Chen博客](https://llchen60.com/)
 
 # 后续章节
-- [创建型模式](/content/first.md)
+- [创建型模式](/content/创建型模式-SimpleFactoryPattern.md)
 
