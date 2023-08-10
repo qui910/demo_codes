@@ -75,6 +75,8 @@ Spring 中有两种类型的Bean，一种是普通Bean，另一种是工厂Bean 
 ### 5.1.1 BeanFactory
 BeanFactory是Spring框架的核心接口之一，它是一个用于管理和获取Bean（对象）的工厂。在Spring中，所有的Bean都由BeanFactory进行创建、管理和维护。它提供了一种机制，可以根据配置信息（通常是XML或注解配置）来实例化、初始化和管理Bean。BeanFactory是Spring的基础构建块之一，提供了许多功能，如延迟加载、依赖注入等。
 
+`org.example.designPatterns.creationalPattern.simpleFactoryPattern.demo4`
+
 #### 5.1.1.1 遵循严格的生命周期
 通过BeanFactory创建一个Bean要经过非常严格的流程处理，很繁琐。
 ```
@@ -114,18 +116,100 @@ BeanFactory factory = (BeanFactory) context;
 - 接着使用`getBean(String beanName)`方法就可以取得bean的实例；
 ```java
 // 判断工厂中是否包含给定名称的bean定义，若有则返回true
-boolean containsBean(String beanName) 
+boolean containsBean(String beanName)
 // 返回给定名称注册的bean实例。根据bean的配置情况，如果是singleton模式将返回一个共享实例，否则将返回一个新建的实例，如果没有找到指定bean,该方法可能会抛出异常
-Object getBean(String) 
+Object getBean(String)
 // 返回以给定名称注册的bean实例，并转换为给定class类型　
-Object getBean(String, Class) 
+Object getBean(String, Class)
 // 返回给定名称的bean的Class,如果没有找到指定的bean实例，则排除NoSuchBeanDefinitionException异常
-Class getType(String name) 
+Class getType(String name)
 // 判断给定名称的bean定义是否为单例模式
-boolean isSingleton(String) 
+boolean isSingleton(String)
 // 返回给定bean名称的所有别名
-String[] getAliases(String name)  
+String[] getAliases(String name)
 ```
+
+#### 5.1.1.3 SpringBoot中使用
+- Springboot主入口启动时，保存上下文
+```java
+@SpringBootApplication
+public class RedisExampleApplication {
+    public static void main(String[] args) {
+        // 启动时，保存上下文，并保存为静态
+        ConfigurableApplicationContext applicationContext = SpringApplication.run(RedisexampleApplication.class, args);
+        SpringContextUtil1.setAc(applicationContext);
+    }
+}
+
+/**
+ * spring获取bean通过保存ApplicationContext对象
+ */
+public class SpringContextUtil1 {
+    private static ApplicationContext ac;
+    public static <T>  T getBean(String beanName, Class<T> clazz) {
+        T bean = ac.getBean(beanName, clazz);
+        return bean;
+    }
+
+    public static void setAc(ApplicationContext applicationContext){
+        ac = applicationContext;
+    }
+}
+```
+- 通过继承的spring提供的接口或者类
+```java
+// 通过实现ApplicationContextAware
+@Component
+public class SpringContextUtil3 implements ApplicationContextAware {
+    private static ApplicationContext ac;
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        ac = applicationContext;
+    }
+    public static <T> T getBean(Class<T> clazz) {
+        T bean = ac.getBean(clazz);
+        return bean;
+    }
+}
+
+
+// 通过继承ApplicationObjectSupport
+@Service
+public class SpringContextUtil4 extends ApplicationObjectSupport {
+    public <T> T getBean(Class<T> clazz) {
+        T bean = getApplicationContext().getBean(clazz);
+        return bean;
+    }
+}
+
+
+//  通过继承WebApplicationObjectSupport
+@Service
+public class SpringContextUtil5 extends WebApplicationObjectSupport {
+    public <T> T getBean(Class<T> clazz) {
+        T bean = getApplicationContext().getBean(clazz);
+        return bean;
+    }
+}
+
+// 通过spring提供的静态方法获取上下文  通过WebApplicationContextUtils，适用于web项目的b/s结构
+public class SpringContextUtil2 {
+
+    public static <T> T getBean(ServletContext request, String name, Class<T> clazz){
+        WebApplicationContext webApplicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(request);
+        // 或者
+        WebApplicationContext webApplicationContext1 = WebApplicationContextUtils.getWebApplicationContext(request);
+//        webApplicationContext1.getBean(name, clazz)
+        T bean = webApplicationContext.getBean(name, clazz);
+        return bean;
+    }
+}
+
+// 通过spring提供的静态方法获取上下文  通过ContextLoader获取WebApplicationContext，获取上下文
+
+
+```
+
 
 ### 5.1.2 FactoryBean
 FactoryBean是一个特殊的Bean，它实现了FactoryBean接口。它允许开发人员在配置文件中定义自己的工厂类，用于创建特定类型的Bean。当Spring容器遇到一个实现了FactoryBean接口的Bean定义时，它不会直接实例化这个Bean，而是使用FactoryBean接口的方法来获取实际的Bean实例。这样可以在创建Bean时执行一些自定义的逻辑。
@@ -148,9 +232,12 @@ FactoryBean是实现了FactoryBean接口的Bean，可以该Bean的ID从BeanFacto
 )被初始化之前和初始化之后， 分别调用实现了BeanPostProcessor接口的类的postProcessAfterInitialization()方法 和postProcessBeforeInitialization()方法 之所以用z开头是因为 初始化有顺序
 
 
-## 1.3 Spring中的工厂模式
-三分钟快速了解Spring中的工厂模式
-https://juejin.cn/post/6992716383893061663
+
+
+# 参考
+- [~~springboot获取bean的几种常用方式~~](https://bbs.huaweicloud.com/blogs/360056)
+- [~~三分钟快速了解Spring中的工厂模式~~](https://juejin.cn/post/6992716383893061663)
+
 用Spring实现工厂模式，简单实用
 https://blog.csdn.net/u011291072/article/details/120296086
 Spring Boot中使用注解实现简单工厂模式

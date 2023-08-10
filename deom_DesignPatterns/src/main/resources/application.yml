@@ -1,6 +1,6 @@
 #日志配置 无特殊需求无需更改
 logging:
-  config: /home/userA/SpringBoot/micro-service01/config/log4j2.xml
+  config: /data/IdeaProjects/demo_codes/deom_DesignPatterns/src/main/resources/log4j2.xml
   level:
     root: INFO
     javax.activation: info
