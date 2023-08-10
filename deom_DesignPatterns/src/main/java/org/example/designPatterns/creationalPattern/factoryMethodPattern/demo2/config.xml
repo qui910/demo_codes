@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<config>
+    <className>org.example.designPatterns.creationalPattern.factoryMethodPattern.demo2.FileLoggerFactory</className>
+</config>

@@ -59,6 +59,20 @@
   </dependencies>
 
   <build>
+    <!-- maven项目中有一个目录标准，其中src下的xml文件构建时不会被输出到target/classes目录下。-->
+    <!-- 除了标准的resources目录外，还将src/main/java下的xml文件也添加成资源（resource），因此构建时会输出到target/classes目录下。-->
+    <resources>
+      <resource>
+        <directory>src/main/java</directory>
+        <includes>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+    </resources>
+
     <plugins>
       <plugin>
         <groupId>org.springframework.boot</groupId>

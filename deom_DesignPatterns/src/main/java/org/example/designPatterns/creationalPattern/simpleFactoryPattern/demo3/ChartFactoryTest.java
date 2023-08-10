@@ -14,7 +14,7 @@ public class ChartFactoryTest {
     public void testFactory() {
         Chart chart;
         //读取配置文件中的参数
-        String type = XMLUtil.getChartType();
+        String type = XMLUtil.getChartType(this.getClass().getResource("").getPath());
         //创建产品对象
         chart = ChartFactory.getChart(type);
         chart.display();

@@ -587,6 +587,7 @@ public class DocumentFactory {
 ```
 
 # 参考
+- [《设计模式》](https://www.bookstack.cn/read/design-pattern-java/README.md)
 - [Leilei Chen博客](https://llchen60.com/)
 
 # 后续章节

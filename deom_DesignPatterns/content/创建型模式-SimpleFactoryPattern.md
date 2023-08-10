@@ -8,7 +8,7 @@
 
 ![简单工厂模式结构图](https://static.sitestack.cn/projects/design-pattern-java/d3d9172d0441fd4e9e9826a1294a3f62.png)
 
-## 1.1 角色
+## 1.1 通用框架实现
 在简单工厂模式结构图中包含如下几个角色：
 - Factory（工厂角色）：工厂角色即工厂类，它是简单工厂模式的核心，负责实现创建所有产品实例的内部逻辑；工厂类可以被外界直接调用，创建所需的产品对象；在工厂类中提供了静态的工厂方法factoryMethod()，它的返回类型为抽象产品类型Product。
 - Product（抽象产品角色）：它是工厂类所创建的所有对象的父类，封装了各种产品对象的公有方法，它的引入将提高系统的灵活性，使得在工厂类中只需定义一个通用的工厂方法，因为所有创建的具体产品对象都是其子类对象。
@@ -206,9 +206,10 @@ public class SpringContextUtil2 {
 }
 
 // 通过spring提供的静态方法获取上下文  通过ContextLoader获取WebApplicationContext，获取上下文
-
-
 ```
+#### 5.1.1.4 BeanFactory几个使用示例
+
+
 
 
 ### 5.1.2 FactoryBean
@@ -220,8 +221,6 @@ FactoryBean是实现了FactoryBean接口的Bean，可以该Bean的ID从BeanFacto
 - BeanFactory是接口，提供了OC容器最基本的形式，给具体的IOC容器的实现提供了规范，
 - FactoryBean也是接口，为IOC容器中Bean的实现提供了更加灵活的方式，FactoryBean在IOC容器的基础上给Bean
 的实现加上了一个简单工厂模式和装饰模式(如果想了解装饰模式参考：修饰者模式(装饰者模式，Decoration) 我们可以在getObject()方法中灵活配置。其实在Spring源码中有很多FactoryBean的实现类.
-
-
 
 ### 5.1.4 BeanFactory与ApplicationContext
 - BeanFacotry是spring中比较原始的Factory。如XMLBeanFactory就是一种典型的BeanFactory。原始的BeanFactory无法支持spring的许多插件，如AOP功能、Web应用等。 
@@ -235,17 +234,12 @@ FactoryBean是实现了FactoryBean接口的Bean，可以该Bean的ID从BeanFacto
 
 
 # 参考
-- [~~springboot获取bean的几种常用方式~~](https://bbs.huaweicloud.com/blogs/360056)
-- [~~三分钟快速了解Spring中的工厂模式~~](https://juejin.cn/post/6992716383893061663)
-- [~~Spring获取Bean的9种方式~~](https://juejin.cn/post/7187939675707801637)
+- [~~springboot获取bean的几种常用方式（已读）~~](https://bbs.huaweicloud.com/blogs/360056)
+- [~~三分钟快速了解Spring中的工厂模式（已读）~~](https://juejin.cn/post/6992716383893061663)
+- [~~Spring获取Bean的9种方式（已读）~~](https://juejin.cn/post/7187939675707801637)
+- [~~用Spring实现工厂模式，简单实用(不推荐)~~](https://blog.csdn.net/u011291072/article/details/120296086)
+- [~~Spring Boot中使用注解实现简单工厂模式(通过Autowired到Map中筛选)~~](https://www.cnblogs.com/east7/p/13412365.html)
+- [~~工厂模式-理解SPRING的BEAN工厂（马士兵经典例子）(过旧)~~](https://www.cnblogs.com/lihaoyang/p/13720163.html)
 
-用Spring实现工厂模式，简单实用
-https://blog.csdn.net/u011291072/article/details/120296086
-Spring Boot中使用注解实现简单工厂模式
-https://www.cnblogs.com/east7/p/13412365.html
-工厂模式-理解SPRING的BEAN工厂（马士兵经典例子）
-https://www.cnblogs.com/lihaoyang/p/13720163.html
-Spring中的设计模式：工厂方法模式
-https://segmentfault.com/a/1190000022276517
 
 
