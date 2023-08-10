@@ -6,14 +6,15 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.stereotype.Component;
 
 /**
- * 通过BeanFactoryAware获取
- *
+ * Spring获取Bean的方法二：通过BeanFactoryAware获取
+ * <p>
  * 在之前的方式中，XmlBeanFactory已经被废弃，但可以通过其他方式来获得BeanFactory，
  * 然后再从BeanFactory中获得指定的Bean。获取BeanFactory实例最简单的方式就是实现BeanFactoryAware接口。
  *
  * BeanFactoryAware属于org.springframework.beans.factory.Aware根标记接口，
  * 使用setter注入来在应用程序上下文启动期间获取对象。Aware接口是回调，监听器和观察者设计模式的混合，
  * 它表示Bean有资格通过回调方式被Spring容器通知。
+ * </p>
  * @version 1.0
  * @date 2023-08-10 08:44
  * @since 1.8

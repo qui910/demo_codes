@@ -75,7 +75,7 @@ Spring 中有两种类型的Bean，一种是普通Bean，另一种是工厂Bean 
 ### 5.1.1 BeanFactory
 BeanFactory是Spring框架的核心接口之一，它是一个用于管理和获取Bean（对象）的工厂。在Spring中，所有的Bean都由BeanFactory进行创建、管理和维护。它提供了一种机制，可以根据配置信息（通常是XML或注解配置）来实例化、初始化和管理Bean。BeanFactory是Spring的基础构建块之一，提供了许多功能，如延迟加载、依赖注入等。
 
-`org.example.designPatterns.creationalPattern.simpleFactoryPattern.demo4`
+`org.example.designPatterns.creationalPattern.simpleFactoryPattern.demo4` 参见 SpringContextUtil1~SpringContextUtil9
 
 #### 5.1.1.1 遵循严格的生命周期
 通过BeanFactory创建一个Bean要经过非常严格的流程处理，很繁琐。
@@ -237,6 +237,7 @@ FactoryBean是实现了FactoryBean接口的Bean，可以该Bean的ID从BeanFacto
 # 参考
 - [~~springboot获取bean的几种常用方式~~](https://bbs.huaweicloud.com/blogs/360056)
 - [~~三分钟快速了解Spring中的工厂模式~~](https://juejin.cn/post/6992716383893061663)
+- [~~Spring获取Bean的9种方式~~](https://juejin.cn/post/7187939675707801637)
 
 用Spring实现工厂模式，简单实用
 https://blog.csdn.net/u011291072/article/details/120296086

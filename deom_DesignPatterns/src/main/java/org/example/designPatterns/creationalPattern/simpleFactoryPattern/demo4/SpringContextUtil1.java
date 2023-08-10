@@ -10,9 +10,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.support.GenericWebApplicationContext;
 
 /**
- * 通过BeanFactory获取
- *
- * 基于xml配置文件的时代，可以通过如下方式获得BeanFactory，再通过BeanFactory来获得对应的Bean。
+ * Spring获取Bean的方法一：通过BeanFactory获取
+ * <p>
+ *  基于xml配置文件的时代，可以通过如下方式获得BeanFactory，再通过BeanFactory来获得对应的Bean。
+ * </p>
  * @version 1.0
  * @date 2023-08-09 14:50
  * @since 1.8
