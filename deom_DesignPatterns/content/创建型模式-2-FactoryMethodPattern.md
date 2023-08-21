@@ -102,12 +102,13 @@ protected abstract T createInstance() throws Exception;
 - 搭配其他接口协作, 依赖于Spring生命周期, 针对某个时间节点、合适的条件判断，来生成自己需要的对象。
 
 ## 5.3 典型应用
-- MyBatis3 提供 mybatis-spring项目中的 org.mybatis.spring.SqlSessionFactoryBean：
-- 阿里开源的分布式服务框架 Dubbo 中的Consumer 也使用到了FactoryBean
+- MyBatis3提供mybatis-spring项目中的org.mybatis.spring.SqlSessionFactoryBean：
+- 阿里开源的分布式服务框架Dubbo中的Consumer也使用到了FactoryBean
 - shiro中ShiroFilterFactoryBean
 - druid的JdbcStatManagerFactoryBean
 
 
 # 参考
 - [~~Spring中的设计模式：工厂方法模式(已读)~~](https://segmentfault.com/a/1190000022276517)
-- [~~Spring系列（七）：@FactoryBean注解用法介绍已读)~~](https://juejin.cn/post/7075556985579503653)
+- [~~Spring系列（七）：@FactoryBean注解用法介绍(已读)~~](https://juejin.cn/post/7075556985579503653)
+- [~~工厂方法在Spring源码中的运用(系列文章 ★★★)~~](https://www.cnblogs.com/tianClassmate/p/16779339.html)

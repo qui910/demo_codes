@@ -587,9 +587,11 @@ public class DocumentFactory {
 ```
 
 # 参考
-- [《设计模式》](https://www.bookstack.cn/read/design-pattern-java/README.md)
-- [Leilei Chen博客](https://llchen60.com/)
+- [《设计模式》★★★★](https://www.bookstack.cn/read/design-pattern-java/README.md)
+- [Leilei Chen博客(系列文档 ★★★)](https://llchen60.com/)
 
 # 后续章节
-- [创建型模式](/content/创建型模式-SimpleFactoryPattern.md)
+- [创建型模式-简单工厂模式](/content/创建型模式-1-SimpleFactoryPattern.md)
+- [创建型模式-工厂方法模式](/content/创建型模式-2-FactoryMethodPattern.md)
+- [创建型模式-抽象工厂模式](/content/创建型模式-3-AbstractFactoryPattern.md)
 
