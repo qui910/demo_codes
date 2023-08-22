@@ -75,6 +75,9 @@ public class MapAndReduceTest {
         log.info("normal method cost {}",(endTime-startTime));
     }
 
+    /**
+     * map实现sum
+     */
     @Test
     public void testMapSum() {
         long startTime = System.currentTimeMillis();
@@ -85,6 +88,9 @@ public class MapAndReduceTest {
         log.info("map method cost {}",(endTime-startTime));
     }
 
+    /**
+     * reduce实现sum
+     */
     @Test
     public void testReduceSum() {
         long startTime = System.currentTimeMillis();
@@ -94,10 +100,34 @@ public class MapAndReduceTest {
         log.info("map method cost {}",(endTime-startTime));
     }
 
+    /**
+     * 类对象的Reduce
+     */
     @Test
     public void testReduceSum1() {
         long startTime = System.currentTimeMillis();
+        // 无法编译
+        // double sum = peoples.stream().reduce(0,  (partialAgeResult, user) -> partialAgeResult + user.getAge());
+        // 添加参数 Integer::sum 即可编译通过
+        double sum = peoples.stream().reduce(0,  (partialAgeResult, user) -> partialAgeResult + user.getAge(),Integer::sum);
+        log.info("sum={}",sum);
+        long endTime = System.currentTimeMillis();
+        log.info("map method cost {}",(endTime-startTime));
+    }
+
+
+    /**
+     * 测试并行流
+     */
+    @Test
+    public void testReduceSumParallel() {
+        long startTime = System.currentTimeMillis();
         List<Integer> ages = Arrays.asList(25, 30, 45, 28, 32);
+        // parallelStream 时也需要添加参数 Integer::sum
+        // 使用并行流的前提
+        // 结合性：结果不受操作数顺序的影响
+        // 无干扰：操作不影响数据源
+        // 无状态和确定性：操作没有状态，并且对于给定的输入产生相同的输出
         int computedAges = ages.parallelStream().reduce(0, (a, b) -> a + b, Integer::sum);
         log.info("computedAges={}",computedAges);
         long endTime = System.currentTimeMillis();
