@@ -22,7 +22,7 @@ public class LocalStartConsumer {
 
     @PostConstruct
     public void init() {
-        log.info("LocalStartConsumer初始化完成，线程：{}",Thread.currentThread().getName());
-        consumer.receiveMessageAndDelete();
+//        log.info("LocalStartConsumer初始化完成，线程：{}",Thread.currentThread().getName());
+//        consumer.receiveMessageAndDelete();
     }
 }

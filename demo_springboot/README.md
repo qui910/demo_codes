@@ -27,3 +27,5 @@
 -  LocalConsumer的异步方法如果Spring启动后立刻执行且不占用主线程main，有几种方法：
     1. 实现CommandLineRunner接口，并重写run方法，但是此run方法还是main线程，并且不建议其中使用wait，会导致一些并发问题。
     2. @PostConstruct标注init方法，并在其中调用@Async异步方法，但是@PostConstruct标注的方法和@Async标注的方法不能是一个类，否则异步失效。还是在main线程中。
+    3. eg:LocalStartConsumer  使用不同类且标注@PostConstruct，缺点就是没法控制类的实例化顺序。如果LocalConsumer后实例化，是否会造成启动问题？ 或者可以用@Lazy标注LocalStartConsumer
+    4. 最好还是在实现CommandLineRunner接口，但是在run方法中调用其他类的异步方法，这样即时异步方法中wait，也不会出现问题。eg:LocalStartCommand
