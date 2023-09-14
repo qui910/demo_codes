@@ -18,7 +18,9 @@ public abstract class AbstractConsumer<T> implements IConsumer<T> {
     @Override
     @SuppressWarnings("unchecked")
     public void receiveMessageAndDelete() {
-        log.info("异步方法开始执行，线程：{}",Thread.currentThread().getName());
+        log.info("receiveMessageAndDelete-异步方法开始执行，线程：{}",Thread.currentThread().getName());
+        // 一样的线程
+        asyncMethodTest();
         // 获取到queue
         IQueue<T> queue = (IQueue<T>) QueueManager.getQueue(getQueueName(),getQueueClass());
         // 如果队列中存在消息，则一直处于消费状态
@@ -31,5 +33,13 @@ public abstract class AbstractConsumer<T> implements IConsumer<T> {
                 e.printStackTrace();
             }
         }
+    }
+
+    /**
+     * 测试同一个类中多个Async方法相互调用还是同一个线程
+     */
+    @Async
+    public void asyncMethodTest() {
+        log.info("asyncMethodTest-异步方法开始执行，线程：{}",Thread.currentThread().getName());
     }
 }
