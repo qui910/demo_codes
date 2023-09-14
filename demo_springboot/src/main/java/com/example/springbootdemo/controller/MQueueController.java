@@ -30,7 +30,9 @@ public class MQueueController {
     @GetMapping("/sendMessage")
     public String sendMessage(String message) {
         log.info("--Controller-sendMessage---{}-begin",Thread.currentThread().getName());
-        localProvider.sendMessage(message+"-"+ UUID.randomUUID().toString());
+        long time = System.currentTimeMillis();
+        log.info("--Controller-sendMessage---{}",time);
+        localProvider.sendMessage(message+"-"+ time);
         log.info("--Controller-sendMessage---end");
         return "success";
     }

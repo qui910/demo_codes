@@ -40,13 +40,16 @@ public abstract class AbstractQueue<T> implements IQueue<T> {
             }
             if (localQueue.size()>QUEUE_MAX_SIZE) {
                 try {
-                    localQueue.wait();
+                    localQueue.wait(5000);
+                    log.info("唤醒写阻塞队列...");
                 } catch (InterruptedException e) {
                     log.error("消息队列写入阻塞唤醒异常",e);
                 }
             }
             // 将消息放入队列
-            localQueue.push(t);
+            if (localQueue.size()<=QUEUE_MAX_SIZE) {
+                localQueue.push(t);
+            }
         }
     }
 
