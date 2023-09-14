@@ -19,7 +19,8 @@ public class LocalStartCommand implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        consumer.receiveMessageAndDelete();
-        log.info("LocalStartCommand初始化完成，线程：{}",Thread.currentThread().getName());
+        // 屏蔽调试队写入阻塞问题
+//        consumer.receiveMessageAndDelete();
+//        log.info("LocalStartCommand初始化完成，线程：{}",Thread.currentThread().getName());
     }
 }

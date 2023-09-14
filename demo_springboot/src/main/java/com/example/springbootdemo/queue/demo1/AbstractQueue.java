@@ -17,6 +17,14 @@ public abstract class AbstractQueue<T> implements IQueue<T> {
     private final LinkedList<T> localQueue = new LinkedList<>();
 
     /**
+     * 内存队列最大容量
+     * <p>
+     *    操作此容量时，阻塞写入线程。当小于此容量时，唤醒写入线程。
+     * </p>
+     */
+    private final static int QUEUE_MAX_SIZE = 5;
+
+    /**
      * 放入消息
      * 注意：这里加锁是为了防止并发操作，因为LinkedList本身是线程不安全的
      * @param t 消息
@@ -24,10 +32,18 @@ public abstract class AbstractQueue<T> implements IQueue<T> {
     @Override
     public void putMessage(T t) {
         synchronized (localQueue) {
+            log.info("当前队列长度：{}",localQueue.size());
             // 如果队列在等待，则执行唤醒
             if (localQueue.isEmpty()) {
                 log.info("唤醒队列...");
                 localQueue.notifyAll();
+            }
+            if (localQueue.size()>QUEUE_MAX_SIZE) {
+                try {
+                    localQueue.wait();
+                } catch (InterruptedException e) {
+                    log.error("消息队列写入阻塞唤醒异常",e);
+                }
             }
             // 将消息放入队列
             localQueue.push(t);
@@ -40,6 +56,7 @@ public abstract class AbstractQueue<T> implements IQueue<T> {
     @Override
     public T pollFirst() {
         synchronized (localQueue) {
+            log.info("当前队列长度：{}",localQueue.size());
             // 如果队列中没有消息，则处于堵塞状态，有消息则进行消费
             if (localQueue.isEmpty()) {
                 try {
@@ -51,6 +68,9 @@ public abstract class AbstractQueue<T> implements IQueue<T> {
                     log.error("消息队列阻塞唤醒异常",e);
                 }
             } else {
+                if (localQueue.size()<=QUEUE_MAX_SIZE) {
+                    localQueue.notifyAll();
+                }
                 return localQueue.pollFirst();
             }
         }
