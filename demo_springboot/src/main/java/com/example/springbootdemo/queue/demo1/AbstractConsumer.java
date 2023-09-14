@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
  **/
 @Slf4j
 @Service
-public abstract class AbstractConsumer<T> implements IComsumer<T> {
+public abstract class AbstractConsumer<T> implements IConsumer<T> {
 
     @Async
     @Override
