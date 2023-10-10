@@ -1,2 +1,4 @@
-2023-09-15 14:51:28.448 -- [1;35m[main][m [1;32mINFO [m com.example.javase.hutools.HutoolDateUtilTest.testSysdate - sysdate-->2023-09-15 14:51:28
-2023-09-15 14:55:48.927 -- [1;35m[main][m [1;32mINFO [m com.example.javase.hutools.HutoolDateUtilTest.testSysdate - sysdate-->2023-09-15T14:00:00.000+0800
+2023-09-20 13:59:40.394 -- [1;35m[main][m [1;32mINFO [m com.example.javase.hutools.HutoolDateUtilTest.testHour - 时间点：0
+2023-09-20 13:59:57.772 -- [1;35m[main][m [1;32mINFO [m com.example.javase.hutools.HutoolDateUtilTest.testHour - 时间点：1
+2023-09-20 14:00:07.723 -- [1;35m[main][m [1;32mINFO [m com.example.javase.hutools.HutoolDateUtilTest.testHour - 时间点：23
+2023-09-20 14:00:26.345 -- [1;35m[main][m [1;32mINFO [m com.example.javase.hutools.HutoolDateUtilTest.testHour - 时间点：23
