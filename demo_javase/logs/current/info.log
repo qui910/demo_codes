@@ -1,4 +1,1 @@
-2023-09-20 13:59:40.394 -- [1;35m[main][m [1;32mINFO [m com.example.javase.hutools.HutoolDateUtilTest.testHour - 时间点：0
-2023-09-20 13:59:57.772 -- [1;35m[main][m [1;32mINFO [m com.example.javase.hutools.HutoolDateUtilTest.testHour - 时间点：1
-2023-09-20 14:00:07.723 -- [1;35m[main][m [1;32mINFO [m com.example.javase.hutools.HutoolDateUtilTest.testHour - 时间点：23
-2023-09-20 14:00:26.345 -- [1;35m[main][m [1;32mINFO [m com.example.javase.hutools.HutoolDateUtilTest.testHour - 时间点：23
+2023-12-20 13:31:26.764 -- [1;35m[main][m [1;32mINFO [m com.example.javase.stream.flatMap.FlatMapTest.testCopyListToList - [ToBean{name='b', password='2', id='750468423', hashCode='4049'}, ToBean{name='c', password='', id='1384010761', hashCode='4030'}, ToBean{name='b', password='2', id='750468423', hashCode='4049'}, ToBean{name='c', password='', id='1384010761', hashCode='4030'}]
