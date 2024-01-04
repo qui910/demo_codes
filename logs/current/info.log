@@ -1,0 +1,66 @@
+2023-12-24 13:32:23.671 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 总堆内存：245MB
+2023-12-24 13:32:23.672 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 最大堆内存：3641MB
+2023-12-24 13:32:23.673 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 空闲堆内存：207MB
+2023-12-24 13:32:23.674 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 分配了1MB空间给数组
+2023-12-24 13:32:23.674 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 总堆内存：245MB
+2023-12-24 13:32:23.674 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 最大堆内存：3641MB
+2023-12-24 13:32:23.675 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 空闲堆内存：206MB
+2023-12-24 13:32:23.676 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 分配了4MB空间给数组
+2023-12-24 13:32:23.676 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 总堆内存：245MB
+2023-12-24 13:32:23.676 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 最大堆内存：3641MB
+2023-12-24 13:32:23.677 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 空闲堆内存：202MB
+2023-12-24 13:33:40.611 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 初识堆内存：9MB
+2023-12-24 13:33:40.613 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 最大堆内存：18MB
+2023-12-24 13:33:40.613 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 空闲堆内存：3MB
+2023-12-24 13:33:40.613 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 分配了1MB空间给数组
+2023-12-24 13:33:40.614 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 初识堆内存：9MB
+2023-12-24 13:33:40.614 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 最大堆内存：18MB
+2023-12-24 13:33:40.614 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 空闲堆内存：2MB
+2023-12-24 13:33:40.615 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 分配了4MB空间给数组
+2023-12-24 13:33:40.615 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 初识堆内存：13MB
+2023-12-24 13:33:40.615 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 最大堆内存：18MB
+2023-12-24 13:33:40.616 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 空闲堆内存：2MB
+2023-12-24 13:36:15.292 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 初识堆内存：9437184MB
+2023-12-24 13:36:15.294 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 最大堆内存：18874368MB
+2023-12-24 13:36:15.295 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 空闲堆内存：3683384MB
+2023-12-24 13:36:15.296 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 分配了1MB空间给数组
+2023-12-24 13:36:15.296 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 初识堆内存：9437184MB
+2023-12-24 13:36:15.297 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 最大堆内存：18874368MB
+2023-12-24 13:36:15.297 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 空闲堆内存：2562512MB
+2023-12-24 13:36:15.298 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 分配了4MB空间给数组
+2023-12-24 13:36:15.299 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 初识堆内存：14155776MB
+2023-12-24 13:36:15.299 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 最大堆内存：18874368MB
+2023-12-24 13:36:15.300 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 空闲堆内存：3086784MB
+2023-12-24 13:39:08.258 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 初识堆内存：9437184bytes
+2023-12-24 13:39:08.260 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 最大堆内存：18874368bytes
+2023-12-24 13:39:08.260 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 空闲堆内存：3565016bytes
+2023-12-24 13:39:08.261 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 分配了1MB空间给数组
+2023-12-24 13:39:08.261 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 初识堆内存：9437184bytes
+2023-12-24 13:39:08.261 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 最大堆内存：18874368bytes
+2023-12-24 13:39:08.261 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 空闲堆内存：2516424bytes
+2023-12-24 13:39:08.262 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 分配了4MB空间给数组
+2023-12-24 13:39:08.263 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 初识堆内存：14155776bytes
+2023-12-24 13:39:08.263 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 最大堆内存：18874368bytes
+2023-12-24 13:39:08.264 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 空闲堆内存：2968544bytes
+2023-12-24 13:40:23.251 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 初识堆内存：9437184bytes
+2023-12-24 13:40:23.253 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 最大堆内存：18874368bytes
+2023-12-24 13:40:23.253 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 空闲堆内存：3631480bytes
+2023-12-24 13:40:23.254 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 分配了1MB空间给数组
+2023-12-24 13:40:23.254 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 初识堆内存：9437184bytes
+2023-12-24 13:40:23.255 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 最大堆内存：18874368bytes
+2023-12-24 13:40:23.256 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 空闲堆内存：2510424bytes
+2023-12-24 13:40:23.257 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 分配了4MB空间给数组
+2023-12-24 13:40:23.257 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 初识堆内存：14155776bytes
+2023-12-24 13:40:23.257 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 最大堆内存：18874368bytes
+2023-12-24 13:40:23.258 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 空闲堆内存：3034696bytes
+2023-12-24 18:06:20.085 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 初识堆内存：6094848bytes
+2023-12-24 18:06:20.088 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 最大堆内存：20316160bytes
+2023-12-24 18:06:20.088 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 空闲堆内存：1794584bytes
+2023-12-24 18:06:20.092 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 分配了1MB空间给数组
+2023-12-24 18:06:20.092 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 初识堆内存：6094848bytes
+2023-12-24 18:06:20.092 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 最大堆内存：20316160bytes
+2023-12-24 18:06:20.092 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 空闲堆内存：1655128bytes
+2023-12-24 18:06:20.107 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 分配了4MB空间给数组
+2023-12-24 18:06:20.108 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 初识堆内存：13357056bytes
+2023-12-24 18:06:20.108 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 最大堆内存：20316160bytes
+2023-12-24 18:06:20.108 -- [1;35m[main][m [1;32mINFO [m org.example.jvm.HeapAllocA.main - 空闲堆内存：5294176bytes
