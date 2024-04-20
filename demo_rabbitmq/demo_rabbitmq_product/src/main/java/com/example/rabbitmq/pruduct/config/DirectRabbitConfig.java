@@ -4,7 +4,9 @@ import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 
 /**
@@ -13,6 +15,8 @@ import org.springframework.context.annotation.Bean;
  * @date 2024-04-19 14:32
  * @since 1.8
  **/
+@EnableRabbit // 配置后无需手动创建交换机、队列、绑定等
+@Configuration
 public class DirectRabbitConfig {
     //队列 起名：TestDirectQueue
     @Bean
@@ -41,7 +45,7 @@ public class DirectRabbitConfig {
     }
 
     @Bean
-    DirectExchange lonelyDirectExchange() {
-        return new DirectExchange("lonelyDirectExchange");
+    DirectExchange broadcastDirectExchange() {
+        return new DirectExchange("broadcastDirectExchange");
     }
 }

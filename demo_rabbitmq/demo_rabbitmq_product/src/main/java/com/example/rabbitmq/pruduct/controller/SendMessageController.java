@@ -37,8 +37,52 @@ public class SendMessageController {
         map.put("createTime",createTime);
         //将消息携带绑定键值：TestDirectRouting 发送到交换机TestDirectExchange
         //此时路由值不能为空
-        log.info("sendDirectMessage {} sendMessage：{}",portConfig,map);
+        log.info("sendDirectMessage {} sendMessage：{}",portConfig.getPort(),map);
         rabbitTemplate.convertAndSend("TestDirectExchange", "TestDirectRouting", map);
         return "ok";
     }
+
+    @GetMapping("/sendDirectMessage1")
+    public String sendDirectMessage1() {
+        String messageId = String.valueOf(UUID.randomUUID());
+        String messageData = "test message broadcast, hello!";
+        String createTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        Map<String,Object> map=new HashMap<>();
+        map.put("messageId",messageId);
+        map.put("messageData",messageData);
+        map.put("createTime",createTime);
+        log.info("sendDirectMessage1 {} sendMessage：{}",portConfig.getPort(),map);
+        rabbitTemplate.convertAndSend("broadcastDirectExchange", "log.info", map);
+        return "ok";
+    }
+
+
+    @GetMapping("/sendTopicMessage1")
+    public String sendTopicMessage1() {
+        String messageId = String.valueOf(UUID.randomUUID());
+        String messageData = "message: M A N ";
+        String createTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        Map<String, Object> manMap = new HashMap<>();
+        manMap.put("messageId", messageId);
+        manMap.put("messageData", messageData);
+        manMap.put("createTime", createTime);
+        log.info("sendTopicMessage1 {} sendMessage：{}",portConfig.getPort(),manMap);
+        rabbitTemplate.convertAndSend("topicExchange", "topic.man", manMap);
+        return "ok";
+    }
+
+    @GetMapping("/sendTopicMessage2")
+    public String sendTopicMessage2() {
+        String messageId = String.valueOf(UUID.randomUUID());
+        String messageData = "message: woman is all ";
+        String createTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        Map<String, Object> womanMap = new HashMap<>();
+        womanMap.put("messageId", messageId);
+        womanMap.put("messageData", messageData);
+        womanMap.put("createTime", createTime);
+        log.info("sendTopicMessage2 {} sendMessage：{}",portConfig.getPort(),womanMap);
+        rabbitTemplate.convertAndSend("topicExchange", "topic.woman", womanMap);
+        return "ok";
+    }
+
 }

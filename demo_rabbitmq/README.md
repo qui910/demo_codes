@@ -333,7 +333,313 @@ Work Queue 特别适合在集群环境中做异步处理，能最大程序发挥
 # 5 RabbitMQ使用
 
 ## 5.1 直连交换机（direct exchange）
+
+### 5.1.1 常规配置
 直连交换机是一对一，那配置多台监听绑定到同一个直连交互的同一个队列，则是是轮训消费的。
+
+交换机 --> 路由Key --> 队列
+TestDirectExchange --> TestDirectRouting --> TestDirectQueue
+
+
+- 生产者
+```java
+// 配置类
+@EnableRabbit // 配置后无需手动创建交换机、队列、绑定等
+@Configuration
+public class DirectRabbitConfig {
+    //队列 起名：TestDirectQueue
+    @Bean
+    public Queue TestDirectQueue() {
+        // durable:是否持久化,默认是false,持久化队列：会被存储在磁盘上，当消息代理重启时仍然存在，暂存队列：当前连接有效
+        // exclusive:默认也是false，只能被当前创建的连接使用，而且当连接关闭后队列即被删除。此参考优先级高于durable
+        // autoDelete:是否自动删除，当没有生产者或者消费者使用此队列，该队列会自动删除。
+        // return new Queue("TestDirectQueue",true,true,false);
+
+        //一般设置一下队列的持久化就好,其余两个就是默认false
+        return new Queue("TestDirectQueue",true);
+    }
+
+    //Direct交换机 起名：TestDirectExchange
+    @Bean
+    DirectExchange TestDirectExchange() {
+        //  return new DirectExchange("TestDirectExchange",true,true);
+        return new DirectExchange("TestDirectExchange",true,false);
+    }
+
+    //绑定
+    //将队列和交换机绑定, 并设置用于匹配键：TestDirectRouting
+    @Bean
+    Binding bindingDirect() {
+        return BindingBuilder.bind(TestDirectQueue()).to(TestDirectExchange()).with("TestDirectRouting");
+    }
+}
+
+// 消息发送者
+@GetMapping("/sendDirectMessage")
+public String sendDirectMessage() {
+  String messageId = String.valueOf(UUID.randomUUID());
+  String messageData = "test message, hello!";
+  String createTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+  Map<String,Object> map=new HashMap<>();
+  map.put("messageId",messageId);
+  map.put("messageData",messageData);
+  map.put("createTime",createTime);
+  //将消息携带绑定键值：TestDirectRouting 发送到交换机TestDirectExchange
+  //此时路由值不能为空
+  log.info("sendDirectMessage {} sendMessage：{}",portConfig.getPort(),map);
+  rabbitTemplate.convertAndSend("TestDirectExchange", "TestDirectRouting", map);
+  return "ok";
+}
+```
+
+>2024-04-19 21:52:13.049  INFO 1626 --- [nio-8021-exec-1] c.e.r.p.c.SendMessageController          : sendDirectMessage 8021 sendMessage：{createTime=2024-04-19 21:52:13, messageId=a1d64493-01c8-40e8-a864-ecb1bfc90e9e, messageData=test message, hello!}
+2024-04-19 21:52:13.054  INFO 1626 --- [nio-8021-exec-1] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [42.193.39.59:5672]
+2024-04-19 21:52:13.113  INFO 1626 --- [nio-8021-exec-1] o.s.a.r.c.CachingConnectionFactory       : Created new connection: rabbitConnectionFactory#1e7f2e0f:0/SimpleConnection@64cfa34d [delegate=amqp://guest@42.193.39.59:5672/, localPort= 52519]
+2024-04-19 21:52:29.178  INFO 1626 --- [nio-8021-exec-2] c.e.r.p.c.SendMessageController          : sendDirectMessage 8021 sendMessage：{createTime=2024-04-19 21:52:29, messageId=76b2a897-23a2-487b-995f-626838d87c46, messageData=test message, hello!}
+
+- 消费者1
+```java
+@Component
+//监听的队列名称 TestDirectQueue
+@RabbitListener(queues = "TestDirectQueue")
+@Slf4j
+public class DirectReceiver {
+
+    @Autowired
+    private PortConfig portConfig;
+
+    @RabbitHandler
+    public void process(Map testMessage) {
+        log.info("DirectReceiver-{}-消费者收到消息:{}" ,portConfig.getPort(),testMessage.toString());
+    }
+}
+```
+
+>2024-04-19 21:52:13.157  INFO 1194 --- [ntContainer#0-1] c.e.r.custom.listener.DirectReceiver     : DirectReceiver-8022-消费者收到消息:{createTime=2024-04-19 21:52:13, messageId=a1d64493-01c8-40e8-a864-ecb1bfc90e9e, messageData=test message, hello!}
+
+- 消费者2，代码同消费者1，不另做说明
+
+>2024-04-19 21:52:29.196  INFO 1212 --- [ntContainer#0-1] c.e.r.custom.listener.DirectReceiver     : DirectReceiver-8023-消费者收到消息:{createTime=2024-04-19 21:52:29, messageId=76b2a897-23a2-487b-995f-626838d87c46, messageData=test message, hello!}
+
+### 5.1.2 实现广播
+通过direct交换机实现广播，则是消费者自动创建队列并绑定到direct交换机上。
+
+交换机 --> 路由Key --> 队列
+broadcastDirectExchange --> log.info --> 消费者1自动创建的队列 spring-XXXXX
+                                     --> 消费者2自动创建的队列 spring-XXXXX
+
+消费者启动后，自动绑定，消费者停止后，队列自动删除。
+
+
+- 生产者
+```java
+// 配置类新增广播交换机，配置绑定
+@Bean
+DirectExchange broadcastDirectExchange() {
+  return new DirectExchange("broadcastDirectExchange");
+}
+
+// 广播发送者
+@GetMapping("/sendDirectMessage1")
+public String sendDirectMessage1() {
+  String messageId = String.valueOf(UUID.randomUUID());
+  String messageData = "test message broadcast, hello!";
+  String createTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+  Map<String,Object> map=new HashMap<>();
+  map.put("messageId",messageId);
+  map.put("messageData",messageData);
+  map.put("createTime",createTime);
+  log.info("sendDirectMessage1 {} sendMessage：{}",portConfig.getPort(),map);
+  rabbitTemplate.convertAndSend("broadcastDirectExchange", "log.info", map);
+  return "ok";
+}
+```
+>2024-04-20 12:38:05.258  INFO 10533 --- [nio-8021-exec-3] c.e.r.p.c.SendMessageController          : sendDirectMessage1 8021 sendMessage：{createTime=2024-04-20 12:38:05, messageId=25513e7f-a644-46b9-a095-d3310063aeb0, messageData=test message broadcast, hello!}
+2024-04-20 12:38:05.274  INFO 10533 --- [nio-8021-exec-3] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [42.193.39.59:5672]
+2024-04-20 12:38:05.401  INFO 10533 --- [nio-8021-exec-3] o.s.a.r.c.CachingConnectionFactory       : Created new connection: rabbitConnectionFactory#e044b4a:0/SimpleConnection@1ae4ba43 [delegate=amqp://guest@42.193.39.59:5672/, localPort= 60117]
+
+- 消费者1
+```java
+// 广播监听
+@Component
+@RabbitListener(bindings = @QueueBinding(
+        value = @Queue, // 不指定队列名称，使用默认临时队列
+        exchange = @Exchange(value = "broadcastDirectExchange"),
+        key = "log.info"
+))
+@Slf4j
+public class DirectBroadcastReceiver {
+    @Autowired
+    private PortConfig portConfig;
+
+    @RabbitHandler
+    public void process(Map testMessage) {
+        log.info("DirectBroadcastReceiver-{}-消费者收到消息:{}" ,portConfig.getPort(),testMessage.toString());
+    }
+}
+```
+
+>2024-04-20 12:38:05.581  INFO 10556 --- [ntContainer#0-1] c.e.r.c.l.DirectBroadcastReceiver        : DirectBroadcastReceiver-8022-消费者收到消息:{createTime=2024-04-20 12:38:05, messageId=25513e7f-a644-46b9-a095-d3310063aeb0, messageData=test message broadcast, hello!}
+
+- 消费者2，代码同消费者1，不另做说明
+>2024-04-20 12:38:05.565  INFO 10547 --- [ntContainer#0-1] c.e.r.c.l.DirectBroadcastReceiver        : DirectBroadcastReceiver-8023-消费者收到消息:{createTime=2024-04-20 12:38:05, messageId=25513e7f-a644-46b9-a095-d3310063aeb0, messageData=test message broadcast, hello!}
+
+
+## 5.2 主题交换机（topic exchange）
+
+### 5.2.1 常规配置
+topic交换机是一对多的，可以根据Routing Key的模糊匹配，将消息分发到多个队列。当同一个Routing Key有多个消费者(即分布式应用)绑定时，则是轮训消费的。匹配规则是：
+
+交换机 --> 路由Key --> 队列
+topicExchange --> topic.man --> topic.man
+              --> topic.#   --> topic.woman  (因为通过#匹配，所以topic.man和topic.woman得路由Key都可以匹配)
+
+`TopicManReceiver`监听队列`topic.man`，绑定键为：`topic.man`
+`TopicTotalReceiver`监听队列`topic.woman`，绑定键为：`topic.#`
+
+- 生产者
+```java
+// topic配置类
+@Configuration
+public class TopicRabbitConfig {
+    //绑定键
+    public final static String man = "topic.man";
+    public final static String woman = "topic.woman";
+
+    @Bean
+    public Queue firstQueue() {
+        return new Queue(TopicRabbitConfig.man);
+    }
+
+    @Bean
+    public Queue secondQueue() {
+        return new Queue(TopicRabbitConfig.woman);
+    }
+
+    @Bean
+    TopicExchange exchange() {
+        return new TopicExchange("topicExchange");
+    }
+
+    //将firstQueue和topicExchange绑定,而且绑定的键值为topic.man
+    //这样只要是消息携带的路由键是topic.man,才会分发到该队列
+    @Bean
+    Binding bindingExchangeMessage() {
+        return BindingBuilder.bind(firstQueue()).to(exchange()).with(man);
+    }
+
+    //将secondQueue和topicExchange绑定,而且绑定的键值为用上通配路由键规则topic.#
+    // 这样只要是消息携带的路由键是以topic.开头,都会分发到该队列
+    @Bean
+    Binding bindingExchangeMessage2() {
+        return BindingBuilder.bind(secondQueue()).to(exchange()).with("topic.#");
+    }
+}
+
+// 发送topic.man消息
+@GetMapping("/sendTopicMessage1")
+public String sendTopicMessage1() {
+  String messageId = String.valueOf(UUID.randomUUID());
+  String messageData = "message: M A N ";
+  String createTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+  Map<String, Object> manMap = new HashMap<>();
+  manMap.put("messageId", messageId);
+  manMap.put("messageData", messageData);
+  manMap.put("createTime", createTime);
+  log.info("sendTopicMessage1 {} sendMessage：{}",portConfig.getPort(),manMap);
+  rabbitTemplate.convertAndSend("topicExchange", "topic.man", manMap);
+  return "ok";
+}
+
+// 发送topic.woman消息
+@GetMapping("/sendTopicMessage2")
+public String sendTopicMessage2() {
+  String messageId = String.valueOf(UUID.randomUUID());
+  String messageData = "message: woman is all ";
+  String createTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+  Map<String, Object> womanMap = new HashMap<>();
+  womanMap.put("messageId", messageId);
+  womanMap.put("messageData", messageData);
+  womanMap.put("createTime", createTime);
+  log.info("sendTopicMessage2 {} sendMessage：{}",portConfig.getPort(),womanMap);
+  rabbitTemplate.convertAndSend("topicExchange", "topic.woman", womanMap);
+  return "ok";
+}
+```
+
+>2024-04-20 11:10:35.441  INFO 7946 --- [nio-8021-exec-5] c.e.r.p.c.SendMessageController          : sendTopicMessage1 8021 sendMessage：{createTime=2024-04-20 11:10:35, messageId=3eaad5ea-12f2-4419-8297-5883d83fd046, messageData=message: M A N }
+2024-04-20 11:11:05.220  INFO 7946 --- [nio-8021-exec-6] c.e.r.p.c.SendMessageController          : sendTopicMessage1 8021 sendMessage：{createTime=2024-04-20 11:11:05, messageId=874a93ec-a395-4f98-aadc-06a6b7f8a68f, messageData=message: M A N }
+2024-04-20 11:11:13.768  INFO 7946 --- [nio-8021-exec-7] c.e.r.p.c.SendMessageController          : sendTopicMessage1 8021 sendMessage：{createTime=2024-04-20 11:11:13, messageId=27c0ab12-85e1-4f7f-92dc-0898c0daf314, messageData=message: M A N }
+2024-04-20 11:11:20.551  INFO 7946 --- [nio-8021-exec-8] c.e.r.p.c.SendMessageController          : sendTopicMessage1 8021 sendMessage：{createTime=2024-04-20 11:11:20, messageId=3acbf3f7-fc77-4d10-a871-563c754285b7, messageData=message: M A N }
+
+- 消费者1
+```java
+// 监听topic.man队列
+@Component
+@RabbitListener(queues = "topic.man")
+@Slf4j
+public class TopicManReceiver {
+
+  @Autowired
+  private PortConfig portConfig;
+  @RabbitHandler
+  public void process(Map testMessage) {
+    log.info("TopicManReceiver-{}-消费者收到消息:{}" ,portConfig.getPort(),testMessage.toString());
+  }
+}
+
+// 监听topic.woman队列
+@Component
+@RabbitListener(queues = "topic.woman")
+@Slf4j
+public class TopicTotalReceiver {
+  @Autowired
+  private PortConfig portConfig;
+  @RabbitHandler
+  public void process(Map testMessage) {
+    log.info("TopicTotalReceiver-{}-消费者收到消息:{}" ,portConfig.getPort(),testMessage.toString());
+  }
+}
+```
+
+>2024-04-20 11:10:35.458  INFO 8047 --- [ntContainer#1-1] c.e.r.custom.listener.TopicManReceiver   : TopicManReceiver-8022-消费者收到消息:{createTime=2024-04-20 11:10:35, messageId=3eaad5ea-12f2-4419-8297-5883d83fd046, messageData=message: M A N }
+2024-04-20 11:10:35.458  INFO 8047 --- [ntContainer#2-1] c.e.r.c.listener.TopicTotalReceiver      : TopicTotalReceiver-8022-消费者收到消息:{createTime=2024-04-20 11:10:35, messageId=3eaad5ea-12f2-4419-8297-5883d83fd046, messageData=message: M A N }
+2024-04-20 11:11:13.781  INFO 8047 --- [ntContainer#2-1] c.e.r.c.listener.TopicTotalReceiver      : TopicTotalReceiver-8022-消费者收到消息:{createTime=2024-04-20 11:11:13, messageId=27c0ab12-85e1-4f7f-92dc-0898c0daf314, messageData=message: M A N }
+2024-04-20 11:11:13.782  INFO 8047 --- [ntContainer#1-1] c.e.r.custom.listener.TopicManReceiver   : TopicManReceiver-8022-消费者收到消息:{createTime=2024-04-20 11:11:13, messageId=27c0ab12-85e1-4f7f-92dc-0898c0daf314, messageData=message: M A N }
+
+
+- 消费者2，代码同消费者1，不另做说明
+
+>2024-04-20 11:11:05.286  INFO 8150 --- [ntContainer#2-1] c.e.r.c.listener.TopicTotalReceiver      : TopicTotalReceiver-8023-消费者收到消息:{createTime=2024-04-20 11:11:05, messageId=874a93ec-a395-4f98-aadc-06a6b7f8a68f, messageData=message: M A N }
+2024-04-20 11:11:05.286  INFO 8150 --- [ntContainer#1-1] c.e.r.custom.listener.TopicManReceiver   : TopicManReceiver-8023-消费者收到消息:{createTime=2024-04-20 11:11:05, messageId=874a93ec-a395-4f98-aadc-06a6b7f8a68f, messageData=message: M A N }
+2024-04-20 11:11:20.572  INFO 8150 --- [ntContainer#2-1] c.e.r.c.listener.TopicTotalReceiver      : TopicTotalReceiver-8023-消费者收到消息:{createTime=2024-04-20 11:11:20, messageId=3acbf3f7-fc77-4d10-a871-563c754285b7, messageData=message: M A N }
+2024-04-20 11:11:20.572  INFO 8150 --- [ntContainer#1-1] c.e.r.custom.listener.TopicManReceiver   : TopicManReceiver-8023-消费者收到消息:{createTime=2024-04-20 11:11:20, messageId=3acbf3f7-fc77-4d10-a871-563c754285b7, messageData=message: M A N }
+
+
+此处注意几点：
+1. 首先两个消费者，都监听了`topic.man`和`topic.woman`队列，所以会收到消息。
+2. 其次两个消费者，接收消息是轮流进行的。
+3. 另外，`TopicManReceiver`会接受到路由键是`topic.man`的消息。而`TopicTotalReceiver`会接受到路由键是`topic.woman`和`topic.man`的消息。
+
+
+### 5.2.2 广播配置
+
+
+
+# 6 整合Springboot
+
+## 6.1 启动服务后自动创建交换机等
+
+### 6.1.1 通过配置类实现
+在配置类中添加以下内容后，则队列等会自动创建
+```java
+@EnableRabbit
+@Configuration
+public class RabbitMQConfig {
+}
+```
+### 6.1.2 通过配置RabbitAdmin类实现
+
 
 
 
@@ -341,6 +647,8 @@ Work Queue 特别适合在集群环境中做异步处理，能最大程序发挥
 
 
 # 参考资料
-- [RabbitMQ详解，用心看完这一篇就够了【重点】](https://blog.csdn.net/weixin_42039228/article/details/123493937)
-- [RabbitMQ六种工作模式与应用场景](https://blog.csdn.net/weixin_43452467/article/details/124988506)
-- 
+- ~~[RabbitMQ详解，用心看完这一篇就够了【重点】](https://blog.csdn.net/weixin_42039228/article/details/123493937)~~
+- ~~[RabbitMQ六种工作模式与应用场景](https://blog.csdn.net/weixin_43452467/article/details/124988506)~~
+- [SpringBoot整合RabbitMQ实现六种工作模式](https://segmentfault.com/a/1190000042233182)
+- [SpringBoot整合rabbitMQ 启动服务后便自动创建交换机，队列，绑定关系等](https://blog.csdn.net/qq_41712271/article/details/115675092)
+- [RabbitMQ 自动创建队列/交换器/绑定](https://cloud.tencent.com/developer/article/1668606)

@@ -10,8 +10,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @since 1.8
  **/
 @SpringBootApplication
-public class DemoRabbitMqCustomApplication {
+public class DemoRabbitMqCustomBApplication {
     public static void main(String[] args) {
-        SpringApplication.run(DemoRabbitMqCustomApplication.class, args);
+        SpringApplication.run(DemoRabbitMqCustomBApplication.class, args);
     }
 }
