@@ -14,7 +14,7 @@ import java.util.Map;
 @Component
 @RabbitListener(bindings = @QueueBinding(
         value = @Queue, // 不指定队列名称，使用默认临时队列
-        exchange = @Exchange(value = "broadcastTopicExchange"),
+        exchange = @Exchange(value = "broadcastTopicExchange",type="topic"),
         key = "log.error"
 ))
 @Slf4j

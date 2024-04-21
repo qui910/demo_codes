@@ -334,7 +334,7 @@ Work Queue 特别适合在集群环境中做异步处理，能最大程序发挥
 
 ## 5.1 直连交换机（direct exchange）
 
-### 5.1.1 常规配置
+### 5.1.1 工作队列模式
 直连交换机是一对一，那配置多台监听绑定到同一个直连交互的同一个队列，则是是轮训消费的。
 
 交换机 --> 路由Key --> 队列
@@ -421,7 +421,7 @@ public class DirectReceiver {
 
 >2024-04-19 21:52:29.196  INFO 1212 --- [ntContainer#0-1] c.e.r.custom.listener.DirectReceiver     : DirectReceiver-8023-消费者收到消息:{createTime=2024-04-19 21:52:29, messageId=76b2a897-23a2-487b-995f-626838d87c46, messageData=test message, hello!}
 
-### 5.1.2 实现广播
+### 5.1.2 发布订阅模式
 通过direct交换机实现广播，则是消费者自动创建队列并绑定到direct交换机上。
 
 交换机 --> 路由Key --> 队列
@@ -487,8 +487,8 @@ public class DirectBroadcastReceiver {
 
 ## 5.2 主题交换机（topic exchange）
 
-### 5.2.1 常规配置
-topic交换机是一对多的，可以根据Routing Key的模糊匹配，将消息分发到多个队列。当同一个Routing Key有多个消费者(即分布式应用)绑定时，则是轮训消费的。匹配规则是：
+### 5.2.1 工作队列模式
+topic交换机是一对多的，可以根据Routing Key的模糊匹配，将消息分发到多个队列。当同一个Routing Key有多个消费者(同一个队列，即分布式应用)绑定时，则是轮训消费的。匹配规则是：
 
 交换机 --> 路由Key --> 队列
 topicExchange --> topic.man --> topic.man
@@ -622,8 +622,682 @@ public class TopicTotalReceiver {
 3. 另外，`TopicManReceiver`会接受到路由键是`topic.man`的消息。而`TopicTotalReceiver`会接受到路由键是`topic.woman`和`topic.man`的消息。
 
 
-### 5.2.2 广播配置
+### 5.2.2 发布订阅模式
+topic交换机通过自动配置队列绑定，从而实现广播。并且这些广播可以通过路由键进行过滤。
 
+交换机 --> 路由Key --> 队列
+broadcastTopicExchange --> log.error --> 消费者1，只消费error日志，自动创建队列，spring-XXXXX
+                       --> log.#     --> 消费者2，只消费error日志和info日志，自动创建队列，spring-XXXXX
+
+- 生产者
+```java
+// 配置类新增
+@Bean
+TopicExchange broadcastTopicExchange() {
+    return new TopicExchange("broadcastTopicExchange");
+}
+
+// 发送error消息
+@GetMapping("/sendTopicBroadcastMessage1")
+public String sendTopicBroadcastMessage1() {
+    String messageId = String.valueOf(UUID.randomUUID());
+    String messageData = "message: log.error ";
+    String createTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    Map<String, Object> manMap = new HashMap<>();
+    manMap.put("messageId", messageId);
+    manMap.put("messageData", messageData);
+    manMap.put("createTime", createTime);
+    log.info("sendTopicBroadcastMessage1 {} sendMessage：{}",portConfig.getPort(),manMap);
+    rabbitTemplate.convertAndSend("broadcastTopicExchange", "log.error", manMap);
+    return "ok";
+}
+
+// 发送info消息
+@GetMapping("/sendTopicBroadcastMessage2")
+public String sendTopicBroadcastMessage2() {
+    String messageId = String.valueOf(UUID.randomUUID());
+    String messageData = "message: log.info ";
+    String createTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    Map<String, Object> manMap = new HashMap<>();
+    manMap.put("messageId", messageId);
+    manMap.put("messageData", messageData);
+    manMap.put("createTime", createTime);
+    log.info("sendTopicBroadcastMessage2 {} sendMessage：{}",portConfig.getPort(),manMap);
+    rabbitTemplate.convertAndSend("broadcastTopicExchange", "log.info", manMap);
+    return "ok";
+}
+```
+>2024-04-20 16:55:15.189  INFO 14183 --- [nio-8021-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-04-20 16:55:15.190  INFO 14183 --- [nio-8021-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2024-04-20 16:55:15.202  INFO 14183 --- [nio-8021-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 12 ms
+2024-04-20 16:55:15.220  INFO 14183 --- [nio-8021-exec-1] c.e.r.p.c.SendMessageController          : sendTopicBroadcastMessage1 8021 sendMessage：{createTime=2024-04-20 16:55:15, messageId=fe65e242-5736-4243-8e68-fdf3dc080f4d, messageData=message: log.error }
+2024-04-20 16:55:15.224  INFO 14183 --- [nio-8021-exec-1] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [42.193.39.59:5672]
+2024-04-20 16:55:15.282  INFO 14183 --- [nio-8021-exec-1] o.s.a.r.c.CachingConnectionFactory       : Created new connection: rabbitConnectionFactory#3956b302:0/SimpleConnection@4c05e614 [delegate=amqp://guest@42.193.39.59:5672/, localPort= 65268]
+2024-04-20 16:56:17.309  INFO 14183 --- [nio-8021-exec-3] c.e.r.p.c.SendMessageController          : sendTopicBroadcastMessage2 8021 sendMessage：{createTime=2024-04-20 16:56:17, messageId=46e976b6-312e-44ea-b112-694669cf318f, messageData=message: log.info }
+
+
+
+- 消费者1
+```java
+/**
+ * 接收error消息
+ */
+@Component
+@RabbitListener(bindings = @QueueBinding(
+        value = @Queue, // 不指定队列名称，使用默认临时队列
+        exchange = @Exchange(value = "broadcastTopicExchange",type="topic"),
+        key = "log.error"
+))
+@Slf4j
+public class TopicErrorBroadcastReceiver {
+    @Autowired
+    private PortConfig portConfig;
+    @RabbitHandler
+    public void process(Map testMessage) {
+        log.info("TopicErrorBroadcastReceiver-{}-消费者收到消息:{}" ,portConfig.getPort(),testMessage.toString());
+    }
+}
+
+
+/**
+ * 接收info和error消息
+ */
+@Component
+@RabbitListener(bindings = @QueueBinding(
+        value = @Queue, // 不指定队列名称，使用默认临时队列
+        exchange = @Exchange(value = "broadcastTopicExchange",type="topic"),
+        key = "log.#"
+))
+@Slf4j
+public class TopicInfoBroadcastReceiver {
+
+    @Autowired
+    private PortConfig portConfig;
+    @RabbitHandler
+    public void process(Map testMessage) {
+        log.info("TopicInfoBroadcastReceiver-{}-消费者收到消息:{}" ,portConfig.getPort(),testMessage.toString());
+    }
+}
+```
+
+>2024-04-20 16:55:15.587  INFO 14207 --- [ntContainer#3-1] c.e.r.c.l.TopicInfoBroadcastReceiver     : TopicInfoBroadcastReceiver-8022-消费者收到消息:{createTime=2024-04-20 16:55:15, messageId=fe65e242-5736-4243-8e68-fdf3dc080f4d, messageData=message: log.error }
+2024-04-20 16:55:15.587  INFO 14207 --- [ntContainer#2-1] c.e.r.c.l.TopicErrorBroadcastReceiver    : TopicErrorBroadcastReceiver-8022-消费者收到消息:{createTime=2024-04-20 16:55:15, messageId=fe65e242-5736-4243-8e68-fdf3dc080f4d, messageData=message: log.error }
+2024-04-20 16:56:17.330  INFO 14207 --- [ntContainer#3-1] c.e.r.c.l.TopicInfoBroadcastReceiver     : TopicInfoBroadcastReceiver-8022-消费者收到消息:{createTime=2024-04-20 16:56:17, messageId=46e976b6-312e-44ea-b112-694669cf318f, messageData=message: log.info }
+
+
+
+- 消费者2，代码同消费者1，同时接收到消息。
+
+>2024-04-20 16:55:15.578  INFO 14197 --- [ntContainer#2-1] c.e.r.c.l.TopicErrorBroadcastReceiver    : TopicErrorBroadcastReceiver-8023-消费者收到消息:{createTime=2024-04-20 16:55:15, messageId=fe65e242-5736-4243-8e68-fdf3dc080f4d, messageData=message: log.error }
+2024-04-20 16:55:15.578  INFO 14197 --- [ntContainer#3-1] c.e.r.c.l.TopicInfoBroadcastReceiver     : TopicInfoBroadcastReceiver-8023-消费者收到消息:{createTime=2024-04-20 16:55:15, messageId=fe65e242-5736-4243-8e68-fdf3dc080f4d, messageData=message: log.error }
+2024-04-20 16:56:17.331  INFO 14197 --- [ntContainer#3-1] c.e.r.c.l.TopicInfoBroadcastReceiver     : TopicInfoBroadcastReceiver-8023-消费者收到消息:{createTime=2024-04-20 16:56:17, messageId=46e976b6-312e-44ea-b112-694669cf318f, messageData=message: log.info }
+
+
+## 5.3 扇型交换机（Fanout Exchange）
+
+### 5.3.1 工作队列模式
+扇形交换机默认的工作模式也是工作队列模型。只是没有路由键，每个消费者中绑定到此交换机的队列都会收到消息。对于多个消费者，消息会轮训分配到每个消费者中。
+
+交换机 --> 路由Key --> 队列
+fanoutExchange --> null  --> fanout.A   
+                         --> fanout.B
+
+- 生产者
+```java
+// 配置类
+@EnableRabbit
+@Configuration
+public class FanoutRabbitConfig {
+
+    /**
+     *  创建三个队列 ：fanout.A   fanout.B
+     *  将三个队列都绑定在交换机 fanoutExchange 上
+     *  因为是扇型交换机, 路由键无需配置,配置也不起作用
+     */
+
+    @Bean
+    public Queue queueA() {
+        return new Queue("fanout.A");
+    }
+
+    @Bean
+    public Queue queueB() {
+        return new Queue("fanout.B");
+    }
+
+
+    @Bean
+    FanoutExchange fanoutExchange() {
+        return new FanoutExchange("fanoutExchange");
+    }
+
+    @Bean
+    Binding bindingExchangeA() {
+        return BindingBuilder.bind(queueA()).to(fanoutExchange());
+    }
+
+    @Bean
+    Binding bindingExchangeB() {
+        return BindingBuilder.bind(queueB()).to(fanoutExchange());
+    }
+}
+
+// 消息生产者
+@GetMapping("/sendFanoutMessage")
+public String sendFanoutMessage() {
+    String messageId = String.valueOf(UUID.randomUUID());
+    String messageData = "message: testFanoutMessage ";
+    String createTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    Map<String, Object> map = new HashMap<>();
+    map.put("messageId", messageId);
+    map.put("messageData", messageData);
+    map.put("createTime", createTime);
+    log.info("sendFanoutMessage {} sendMessage：{}",portConfig.getPort(),map);
+    rabbitTemplate.convertAndSend("fanoutExchange", null, map);
+    return "ok";
+}
+```
+
+>2024-04-20 20:50:56.971  INFO 17824 --- [nio-8021-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-04-20 20:50:56.972  INFO 17824 --- [nio-8021-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2024-04-20 20:50:56.982  INFO 17824 --- [nio-8021-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 10 ms
+2024-04-20 20:50:57.007  INFO 17824 --- [nio-8021-exec-1] c.e.r.p.c.SendMessageController          : sendFanoutMessage 8021 sendMessage：{createTime=2024-04-20 20:50:57, messageId=0ae72439-39a5-419c-a99d-8a9ec73a0690, messageData=message: testFanoutMessage }
+2024-04-20 20:50:57.012  INFO 17824 --- [nio-8021-exec-1] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [42.193.39.59:5672]
+2024-04-20 20:50:57.078  INFO 17824 --- [nio-8021-exec-1] o.s.a.r.c.CachingConnectionFactory       : Created new connection: rabbitConnectionFactory#46044faa:0/SimpleConnection@11d0522f [delegate=amqp://guest@42.193.39.59:5672/, localPort= 51590]
+2024-04-20 20:52:37.118  INFO 17824 --- [nio-8021-exec-3] c.e.r.p.c.SendMessageController          : sendFanoutMessage 8021 sendMessage：{createTime=2024-04-20 20:52:37, messageId=e843d52c-cd65-46f6-8083-3f93304acf98, messageData=message: testFanoutMessage }
+
+- 消费者1，该消费者中的A，B队列都会收到消息。
+```java
+// 队列A监听
+@Component
+@RabbitListener(queues = "fanout.A")
+@Slf4j
+public class FanoutReceiverA {
+
+    @Autowired
+    private PortConfig portConfig;
+
+    @RabbitHandler
+    public void process(Map testMessage) {
+        log.info("FanoutReceiverA-{}-消费者收到消息:{}" ,portConfig.getPort(),testMessage.toString());
+    }
+}
+
+// 队列B监听
+@Component
+@RabbitListener(queues = "fanout.B")
+@Slf4j
+public class FanoutReceiverB {
+
+    @Autowired
+    private PortConfig portConfig;
+
+    @RabbitHandler
+    public void process(Map testMessage) {
+        log.info("FanoutReceiverB-{}-消费者收到消息:{}" ,portConfig.getPort(),testMessage.toString());
+    }
+}
+```
+
+>2024-04-20 20:52:37.173  INFO 17838 --- [ntContainer#3-1] c.e.r.custom.listener.FanoutReceiverB    : FanoutReceiverB-8022-消费者收到消息:{createTime=2024-04-20 20:52:37, messageId=e843d52c-cd65-46f6-8083-3f93304acf98, messageData=message: testFanoutMessage }
+2024-04-20 20:52:37.173  INFO 17838 --- [ntContainer#2-1] c.e.r.custom.listener.FanoutReceiverA    : FanoutReceiverA-8022-消费者收到消息:{createTime=2024-04-20 20:52:37, messageId=e843d52c-cd65-46f6-8083-3f93304acf98, messageData=message: testFanoutMessage }
+
+- 消费者2，代码同消费者1，不做说明。
+
+>2024-04-20 20:50:57.283  INFO 17833 --- [ntContainer#2-1] c.e.r.custom.listener.FanoutReceiverA    : FanoutReceiverA-8023-消费者收到消息:{createTime=2024-04-20 20:50:57, messageId=0ae72439-39a5-419c-a99d-8a9ec73a0690, messageData=message: testFanoutMessage }
+2024-04-20 20:50:57.283  INFO 17833 --- [ntContainer#3-1] c.e.r.custom.listener.FanoutReceiverB    : FanoutReceiverB-8023-消费者收到消息:{createTime=2024-04-20 20:50:57, messageId=0ae72439-39a5-419c-a99d-8a9ec73a0690, messageData=message: testFanoutMessage }
+
+
+### 5.3.2 发布订阅模式
+实现发布订阅模式，针对多个消费者而言，每个消费者中的队列都必须是不同的。即消费者1是，fanout.A，消费者2是，fanout.A1。这样才能保证同时监听到消息。
+
+broadcastFanoutExchange --> null  --> 消费者1  fanout.A.spring.XXXX   
+                                  --> 消费者2  fanout.A.spring.XXXX
+
+- 生产者
+```java
+// 配置类新增
+@Bean
+FanoutExchange broadcastFanoutExchange() {
+    return new FanoutExchange("broadcastFanoutExchange");
+}
+
+// 广播消息
+@GetMapping("/sendFanoutMessage1")
+public String sendFanoutMessage1() {
+    String messageId = String.valueOf(UUID.randomUUID());
+    String messageData = "message: testBroadCastFanoutMessage ";
+    String createTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    Map<String, Object> map = new HashMap<>();
+    map.put("messageId", messageId);
+    map.put("messageData", messageData);
+    map.put("createTime", createTime);
+    log.info("sendFanoutMessage1 {} sendMessage：{}",portConfig.getPort(),map);
+    rabbitTemplate.convertAndSend("broadcastFanoutExchange", null, map);
+    return "ok";
+}
+```
+>2024-04-20 21:13:39.444  INFO 18536 --- [nio-8021-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-04-20 21:13:39.444  INFO 18536 --- [nio-8021-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2024-04-20 21:13:39.454  INFO 18536 --- [nio-8021-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 10 ms
+2024-04-20 21:13:39.479  INFO 18536 --- [nio-8021-exec-1] c.e.r.p.c.SendMessageController          : sendFanoutMessage1 8021 sendMessage：{createTime=2024-04-20 21:13:39, messageId=2d434e73-ee8a-426b-a317-60c4dba092f5, messageData=message: testBroadCastFanoutMessage }
+2024-04-20 21:13:39.484  INFO 18536 --- [nio-8021-exec-1] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [42.193.39.59:5672]
+2024-04-20 21:13:39.544  INFO 18536 --- [nio-8021-exec-1] o.s.a.r.c.CachingConnectionFactory       : Created new connection: rabbitConnectionFactory#538cd0f2:0/SimpleConnection@76e37cc5 [delegate=amqp://guest@42.193.39.59:5672/, localPort= 52054]
+
+
+- 消费者1，这里只使用了`fanout.A.XXXXX`队列测试，未使用`fanout.B.XXXXX`，只要配置上也是可以接受到的
+
+```java
+// 临时队列fanout.A.xxxx的监听器
+@Component
+@RabbitListener(bindings = @QueueBinding(
+        // 自定义临时队列名称，使用了SpEL来指定队列名称
+        value = @Queue(value = "fanout.A" + "-" + "#{ T(java.util.UUID).randomUUID() }"),
+        exchange = @Exchange(value = "broadcastFanoutExchange",type="fanout")
+))
+@Slf4j
+public class FanoutBroadcastReceiver {
+    @Autowired
+    private PortConfig portConfig;
+
+    @RabbitHandler
+    public void process(Map testMessage) {
+        log.info("FanoutBroadcastReceiver-{}-消费者收到消息:{}" ,portConfig.getPort(),testMessage.toString());
+    }
+}
+```
+>2024-04-20 21:13:39.858  INFO 18523 --- [ntContainer#2-1] c.e.r.c.l.FanoutBroadcastReceiver        : FanoutBroadcastReceiver-8022-消费者收到消息:{createTime=2024-04-20 21:13:39, messageId=2d434e73-ee8a-426b-a317-60c4dba092f5, messageData=message: testBroadCastFanoutMessage }
+
+- 消费者2，代码同消费者1，不做说明。
+
+>2024-04-20 21:13:39.858  INFO 18523 --- [ntContainer#3-1] c.e.r.c.l.FanoutBroadcastReceiver        : FanoutBroadcastReceiver-8023-消费者收到消息:{createTime=2024-04-20 21:13:39, messageId=2d434e73-ee8a-426b-a317-60c4dba092f5, messageData=message: testBroadCastFanoutMessage}
+
+## 5.4 消息回调
+消息回调就是消息确认的一种方式，当消息发送到交换机后，交换机会回调生产者的消息，当消息被消费者接收到后，交换机会回调消费者的消息。
+
+### 5.4.1 生产者消息确认回调机制
+目的application.yml文件上，加上消息确认的配置项`publisher-confirm-type: correlated`
+```bash
+server:
+  port: 8021
+spring:
+  #给项目来个名字
+  application:
+    name: rabbitmq-provider
+  #配置rabbitMq 服务器
+  rabbitmq:
+    host: 42.193.39.59
+    port: 5672
+    username: guest
+    password: guest
+    #虚拟host 可以不设置,使用server默认host
+    virtual-host:
+    #消息确认配置项
+    #确认消息已发送到交换机(Exchange)
+    publisher-confirm-type: correlated
+```
+
+配置相关的消息确认回调函数
+```java
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+@Slf4j
+public class RabbitConfig {
+
+    @Bean
+    public RabbitTemplate createRabbitTemplate(ConnectionFactory connectionFactory){
+        RabbitTemplate rabbitTemplate = new RabbitTemplate();
+        rabbitTemplate.setConnectionFactory(connectionFactory);
+        //设置开启Mandatory,才能触发回调函数,无论消息推送结果怎么样都强制调用回调函数
+        rabbitTemplate.setMandatory(true);
+
+        // 消息确认接口，只要发送到交换机，即为成功。触发时机:
+        // 1. 消息推送到server，但是在server里找不到交换机  ack为false
+        // 2. 消息推送到server，找到交换机了，但是没找到队列  ack为true
+        // 3. 消息推送到sever，交换机和队列啥都没找到   ack为false
+        // 4. 消息推送成功   ack为true
+        rabbitTemplate.setConfirmCallback((correlationData, ack, cause) -> {
+            log.info("ConfirmCallback-相关数据：{}",correlationData);
+            log.info("ConfirmCallback-确认情况：{}",ack);
+            log.info("ConfirmCallback-原因：{}",cause);
+        });
+
+        // 消息返回接口，只要消息推送到交换机，没有投递给消费者，就会触发这个接口。触发时机：
+        // 1. 消息推送到server，找到交换机了，但是没找到队列
+        rabbitTemplate.setReturnCallback((message, replyCode, replyText, exchange, routingKey) -> {
+            log.info("ReturnCallback-消息：{}",message);
+            log.info("ReturnCallback-回应码："+replyCode);
+            log.info("ReturnCallback-回应信息：{}",replyText);
+            log.info("ReturnCallback-交换机：{}",exchange);
+            log.info("ReturnCallback-路由键：{}",routingKey);
+        });
+        return rabbitTemplate;
+    }
+}
+```
+
+### 5.4.2 消费者消息确认机制
+在RabbitMQ中，消息确认机制是指消费者告知 RabbitMQ 何时可以安全地从队列中删除已经接收并处理过的消息。这是为了确保消息不会在消费者处理失败或崩溃时丢失。
+
+在RabbitMQ中，消息确认机制有两种方式：
+
+#### 5.4.2.1 自动确认模式（Auto Acknowledgment）
+在自动确认模式下，一旦消息被RabbitMQ分发给消费者，它就会立即将消息标记为已确认，并将其从队列中删除。消费者无需做任何额外的确认操作。这种模式下，消费者处理消息后，RabbitMQ 将假定消息已经成功处理，并且不会重复发送消息。但是如果消费者在处理消息时发生了错误，消息将会丢失。
+
+这也是默认的消息确认情况。 `AcknowledgeMode.NONE`
+
+RabbitMQ成功将消息发出（即将消息成功写入TCP Socket）中立即认为本次投递已经被正确处理，不管消费者端是否成功处理本次投递。
+
+所以这种情况如果消费端消费逻辑抛出异常，也就是消费端没有处理成功这条消息，那么就相当于丢失了消息。
+
+一般这种情况我们都是使用`try catch`捕捉异常后，打印日志用于追踪数据，这样找出对应数据再做后续处理。
+
+
+#### 5.4.2.2 手动确认模式（Manual Acknowledgment）
+在手动确认模式下，消费者需要在处理完消息后向 RabbitMQ 明确发送一个确认信号（ACK）。只有在收到确认信号后，RabbitMQ 才会将消息标记为已确认，并从队列中删除。如果消费者处理消息失败，可以选择拒绝消息并将其重新放回队列，或者将其标记为已处理并删除。这样可以确保消息不会丢失，并且可以处理一些异常情况。
+
+这个比较关键，也是我们配置接收消息确认机制时，多数选择的模式。
+
+消费者收到消息后，手动调用`basic.ack`/`basic.nack`/`basic.reject`后，RabbitMQ收到这些消息后，才认为本次投递成功。
+- `basic.ack`:用于肯定确认
+- `basic.nack`:用于否定确认（注意：这是AMQP 0-9-1的RabbitMQ扩展）
+- `basic.reject`:用于否定确认，但与`basic.nack`相比有一个限制：一次只能拒绝单条消息
+
+消费者端以上的3个方法都表示消息已经被正确投递，但是`basic.ack`表示消息已经被正确处理。 而`basic.nack`,`basic.reject`表示没有被正确处理。
+
+- 着重讲下`reject`，因为有时候一些场景是需要重新入列的。
+
+`channel.basicReject(deliveryTag, true);`拒绝消费当前消息，如果第二参数传入true，就是将数据重新丢回队列里，那么下次还会消费这消息。设置false，就是告诉服务器，我已经知道这条消息数据了，因为一些原因拒绝它，而且服务器把这个消息丢掉就行，下次不想再消费这条消息了。
+
+使用拒绝后重新入列这个确认模式要谨慎，因为一般都是出现异常的时候，catch异常再拒绝入列，选择是否重入列。
+
+但是如果使用不当会导致一些每次都被你重入列的消息一直消费-入列-消费-入列这样循环，会导致消息积压。
+
+- 简单讲讲`nack`，这个也是相当于设置不消费某条消息。
+
+`channel.basicNack(deliveryTag, false, true);`第一个参数依然是当前消息到的数据的唯一id；第二个参数是指是否针对多条消息；如果是true，也就是说一次性针对当前通道的消息的tagID小于当前这条消息的，都拒绝确认；第三个参数是指是否重新入列，也就是指不确认的消息是否重新丢回到队列里面去。
+
+同样使用不确认后重新入列这个确认模式要谨慎，因为这里也可能因为考虑不周出现消息一直被重新丢回去的情况，导致积压
+
+#### 5.4.2.3 实现手动确认的方式
+
+1. 监听器容器修改实现
+
+```java
+// 在消费者项目里，新建MessageListenerConfig.java上添加代码相关的配置代码
+import com.elegant.rabbitmqconsumer.receiver.MyAckReceiver;
+import org.springframework.amqp.core.AcknowledgeMode;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
+import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class MessageListenerConfig {
+
+    @Autowired
+    private CachingConnectionFactory connectionFactory;
+    @Autowired
+    private MyAckReceiver myAckReceiver;//消息接收处理类
+
+    @Bean
+    public SimpleMessageListenerContainer simpleMessageListenerContainer() {
+        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer(connectionFactory);
+        container.setConcurrentConsumers(1);
+        container.setMaxConcurrentConsumers(1);
+        // RabbitMQ默认是自动确认，这里改为手动确认消息
+        container.setAcknowledgeMode(AcknowledgeMode.MANUAL);
+        //设置一个队列
+        container.setQueueNames("TestDirectQueue");
+        //如果同时设置多个如下： 前提是队列都是必须已经创建存在的
+        //  container.setQueueNames("TestDirectQueue","TestDirectQueue2","TestDirectQueue3");
+
+        //另一种设置队列的方法,如果使用这种情况,那么要设置多个,就使用addQueues
+        //container.setQueues(new Queue("TestDirectQueue",true));
+        //container.addQueues(new Queue("TestDirectQueue2",true));
+        //container.addQueues(new Queue("TestDirectQueue3",true));
+        container.setMessageListener(myAckReceiver);
+
+        return container;
+    }
+}
+
+// 对应的手动确认消息监听类，MyAckReceiver.java（手动确认模式需要实现 ChannelAwareMessageListener）
+import com.rabbitmq.client.Channel;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.rabbit.listener.api.ChannelAwareMessageListener;
+import org.springframework.stereotype.Component;
+import java.util.HashMap;
+import java.util.Map;
+
+@Component
+
+public class MyAckReceiver implements ChannelAwareMessageListener {
+
+    @Override
+    public void onMessage(Message message, Channel channel) throws Exception {
+        long deliveryTag = message.getMessageProperties().getDeliveryTag();
+        try {
+            //因为传递消息的时候用的map传递,所以将Map从Message内取出需要做些处理
+            String msg = message.toString();
+            String[] msgArray = msg.split("'");//可以点进Message里面看源码,单引号直接的数据就是我们的map消息数据
+            Map<String, String> msgMap = mapStringToMap(msgArray[1].trim(),3);
+            String messageId=msgMap.get("messageId");
+            String messageData=msgMap.get("messageData");
+            String createTime=msgMap.get("createTime");
+            System.out.println("  MyAckReceiver  messageId:"+messageId+"  messageData:"+messageData+"  createTime:"+createTime);
+            System.out.println("消费的主题消息来自："+message.getMessageProperties().getConsumerQueue());
+            channel.basicAck(deliveryTag, true); //第二个参数，手动确认可以被批处理，当该参数为 true 时，则可以一次性确认 delivery_tag 小于等于传入值的所有消息
+//			channel.basicReject(deliveryTag, true);//第二个参数，true会重新放回队列，所以需要自己根据业务逻辑判断什么时候使用拒绝
+        } catch (Exception e) {
+            channel.basicReject(deliveryTag, false);
+            e.printStackTrace();
+        }
+    }
+
+    //{key=value,key=value,key=value} 格式转换成map
+    private Map<String, String> mapStringToMap(String str,int entryNum ) {
+        str = str.substring(1, str.length() - 1);
+        String[] strs = str.split(",",entryNum);
+        Map<String, String> map = new HashMap<String, String>();
+        for (String string : strs) {
+            String key = string.split("=")[0].trim();
+            String value = string.split("=")[1];
+            map.put(key, value);
+        }
+        return map;
+    }
+}
+
+// 如何将多个队列监听都改为手动确认模式
+// 上述配置类中的代码中，已经有多个队列的监听都改为手动确认模式
+
+// 监听类的修改，只需要根据消息来自的队列名进行区分处理即可
+import com.rabbitmq.client.Channel;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.rabbit.listener.api.ChannelAwareMessageListener;
+import org.springframework.stereotype.Component;
+import java.util.HashMap;
+import java.util.Map;
+
+@Component
+public class MyAckReceiver implements ChannelAwareMessageListener {
+
+    @Override
+    public void onMessage(Message message, Channel channel) throws Exception {
+        long deliveryTag = message.getMessageProperties().getDeliveryTag();
+        try {
+            //因为传递消息的时候用的map传递,所以将Map从Message内取出需要做些处理
+            String msg = message.toString();
+            String[] msgArray = msg.split("'");//可以点进Message里面看源码,单引号直接的数据就是我们的map消息数据
+            Map<String, String> msgMap = mapStringToMap(msgArray[1].trim(),3);
+            String messageId=msgMap.get("messageId");
+            String messageData=msgMap.get("messageData");
+            String createTime=msgMap.get("createTime");
+
+            if ("TestDirectQueue".equals(message.getMessageProperties().getConsumerQueue())){
+                System.out.println("消费的消息来自的队列名为："+message.getMessageProperties().getConsumerQueue());
+                System.out.println("消息成功消费到  messageId:"+messageId+"  messageData:"+messageData+"  createTime:"+createTime);
+                System.out.println("执行TestDirectQueue中的消息的业务处理流程......");
+            }
+
+            if ("fanout.A".equals(message.getMessageProperties().getConsumerQueue())){
+                System.out.println("消费的消息来自的队列名为："+message.getMessageProperties().getConsumerQueue());
+                System.out.println("消息成功消费到  messageId:"+messageId+"  messageData:"+messageData+"  createTime:"+createTime);
+                System.out.println("执行fanout.A中的消息的业务处理流程......");
+
+            }
+
+            channel.basicAck(deliveryTag, true);
+//			channel.basicReject(deliveryTag, true);//为true会重新放回队列
+        } catch (Exception e) {
+            channel.basicReject(deliveryTag, false);
+            e.printStackTrace();
+        }
+    }
+
+    //{key=value,key=value,key=value} 格式转换成map
+    private Map<String, String> mapStringToMap(String str,int enNum) {
+        str = str.substring(1, str.length() - 1);
+        String[] strs = str.split(",",enNum);
+        Map<String, String> map = new HashMap<String, String>();
+        for (String string : strs) {
+            String key = string.split("=")[0].trim();
+            String value = string.split("=")[1];
+            map.put(key, value);
+        }
+        return map;
+    }
+}
+
+```
+
+2. 监听类修改实现
+
+此种方法由ChatGPT辅助完成。未经检验
+
+在Spring Boot中，你可以使用`@RabbitListener`注解配合`ChannelAwareMessageListener`接口来实现手动确认模式。
+
+当使用`@RabbitListener`注解配合`ChannelAwareMessageListener`接口来实现手动确认模式时，你需要在`@RabbitListener`注解中指定ackMode为`AcknowledgeMode.MANUAL`，以确保消息的手动确认。
+
+```java
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.support.Acknowledgment;
+import org.springframework.stereotype.Component;
+
+@Component
+public class RabbitMQConsumer implements ChannelAwareMessageListener {
+
+    @Override
+    @RabbitListener(queues = "myQueue", ackMode = "MANUAL")
+    public void onMessage(Message message, Channel channel) throws Exception {
+        try {
+            // 处理消息
+            System.out.println("Received message: " + new String(message.getBody()));
+
+            // 手动确认消息
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+        } catch (Exception e) {
+            // 处理异常
+            // 如果出现异常，你可以选择拒绝消息并重新放回队列，或者将其标记为已处理并删除
+            channel.basicReject(message.getMessageProperties().getDeliveryTag(), false);
+        }
+    }
+}
+```
+在`onMessage`方法中，我们首先处理消息，然后通过`channel.basicAck()`方法来手动确认消息。如果处理消息时发生异常，我们可以选择拒绝消息并将其重新放回队列，或者将其标记为已处理并删除。在本例中，我们使用`channel.basicReject()`方法来拒绝消息。
+
+请注意，你需要注入`Channel`对象，并使用它来发送确认信号或拒绝信号。确保在处理完消息后进行手动确认或拒绝，以确保消息的可靠性和正确性。
+
+3. 连接工厂修改实现
+
+```java
+// 在RabbitMQ连接工厂中将确认模式设置为手动确认。确保RabbitTemplate使用手动确认模式。
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.rabbit.annotation.EnableRabbit;
+
+@Configuration
+@EnableRabbit // 开启对 @RabbitListener 注解的支持
+public class RabbitMQConfig {
+
+    @Bean
+    public ConnectionFactory connectionFactory() {
+        // 配置 RabbitMQ 连接工厂
+        CachingConnectionFactory connectionFactory = new CachingConnectionFactory();
+        connectionFactory.setHost("localhost");
+        connectionFactory.setPort(5672);
+        connectionFactory.setUsername("guest");
+        connectionFactory.setPassword("guest");
+
+        // 设置确认模式为手动确认
+        connectionFactory.setPublisherConfirms(true);
+        connectionFactory.setPublisherReturns(true);
+
+        return connectionFactory;
+    }
+
+    @Bean
+    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
+        // 创建 RabbitTemplate
+        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+        return rabbitTemplate;
+    }
+
+    @Bean
+    public Queue myQueue() {
+        return new Queue("myQueue");
+    }
+}
+
+// 在监听类中使用RabbitTemplate.basicAck() 方法来手动确认消息
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+@Component
+public class RabbitMQConsumer {
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
+    @RabbitListener(queues = "myQueue")
+    public void handleMessage(Message message) {
+        try {
+            // 处理消息
+            System.out.println("Received message: " + new String(message.getBody()));
+
+            // 手动确认消息
+            rabbitTemplate.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+        } catch (Exception e) {
+            // 处理异常
+            // 如果出现异常，你可以选择拒绝消息并重新放回队列，或者将其标记为已处理并删除
+            rabbitTemplate.basicReject(message.getMessageProperties().getDeliveryTag(), false);
+        }
+    }
+}
+```
+## 5.5 死信队列
+死信队列，也叫死信队列，是一种消息队列，消息在发送之后，如果一直没有被消费，则会被投递到死信队列中。
+
+
+
+
+## 5.6 延迟队列
+延迟队列，也叫延时队列，是一种消息队列，消息在发送之后，会延迟一定时间再被消费。
 
 
 # 6 整合Springboot
@@ -631,13 +1305,16 @@ public class TopicTotalReceiver {
 ## 6.1 启动服务后自动创建交换机等
 
 ### 6.1.1 通过配置类实现
-在配置类中添加以下内容后，则队列等会自动创建
+在配置类中添加以下内容后，则队列等会自动创建。
 ```java
 @EnableRabbit
 @Configuration
 public class RabbitMQConfig {
 }
 ```
+当生产者发送第一条消息，或者消费者接收到消息后，队列等会自动创建。
+
+
 ### 6.1.2 通过配置RabbitAdmin类实现
 
 
@@ -649,6 +1326,12 @@ public class RabbitMQConfig {
 # 参考资料
 - ~~[RabbitMQ详解，用心看完这一篇就够了【重点】](https://blog.csdn.net/weixin_42039228/article/details/123493937)~~
 - ~~[RabbitMQ六种工作模式与应用场景](https://blog.csdn.net/weixin_43452467/article/details/124988506)~~
+- [RabbitMQ教程](https://www.tizi365.com/course/1.html)
 - [SpringBoot整合RabbitMQ实现六种工作模式](https://segmentfault.com/a/1190000042233182)
 - [SpringBoot整合rabbitMQ 启动服务后便自动创建交换机，队列，绑定关系等](https://blog.csdn.net/qq_41712271/article/details/115675092)
 - [RabbitMQ 自动创建队列/交换器/绑定](https://cloud.tencent.com/developer/article/1668606)
+- ~~[如何在rabbitmq中实现一个生产者，多个消费者，多个消费者都能收到同一条消息](https://blog.csdn.net/weixin_43757027/article/details/124615895)~~
+- ~~[中间件系列一 RabbitMQ之安装和Hello World Demo](https://blog.csdn.net/hry2015/article/details/79016854)~~
+- ~~[中间件系列三 RabbitMQ之交换机的四种类型和属性](https://blog.csdn.net/hry2015/article/details/79118804)~~
+- ~~[中间件系列四 RabbitMQ之Fanout exchange（扇型交换机）之发布订阅](https://blog.csdn.net/hry2015/article/details/79144038)~~
+- 

@@ -8,23 +8,19 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-/**
- * 接收info和error消息
- */
 @Component
 @RabbitListener(bindings = @QueueBinding(
-        value = @Queue, // 不指定队列名称，使用默认临时队列
-        exchange = @Exchange(value = "broadcastTopicExchange",type="topic"),
-        key = "log.#"
+        // 使用了 SpEL 来指定队列名称
+        value = @Queue(value = "fanout.A" + "-" + "#{ T(java.util.UUID).randomUUID() }"),
+        exchange = @Exchange(value = "broadcastFanoutExchange",type="fanout")
 ))
 @Slf4j
-public class TopicInfoBroadcastReceiver {
-
+public class FanoutBroadcastReceiver {
     @Autowired
     private PortConfig portConfig;
+
     @RabbitHandler
     public void process(Map testMessage) {
-        log.info("TopicInfoBroadcastReceiver-{}-消费者收到消息:{}" ,portConfig.getPort(),testMessage.toString());
+        log.info("FanoutBroadcastReceiver-{}-消费者收到消息:{}" ,portConfig.getPort(),testMessage.toString());
     }
 }
-

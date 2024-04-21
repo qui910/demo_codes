@@ -85,4 +85,60 @@ public class SendMessageController {
         return "ok";
     }
 
+    @GetMapping("/sendTopicBroadcastMessage1")
+    public String sendTopicBroadcastMessage1() {
+        String messageId = String.valueOf(UUID.randomUUID());
+        String messageData = "message: log.error ";
+        String createTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        Map<String, Object> manMap = new HashMap<>();
+        manMap.put("messageId", messageId);
+        manMap.put("messageData", messageData);
+        manMap.put("createTime", createTime);
+        log.info("sendTopicBroadcastMessage1 {} sendMessage：{}",portConfig.getPort(),manMap);
+        rabbitTemplate.convertAndSend("broadcastTopicExchange", "log.error", manMap);
+        return "ok";
+    }
+
+    @GetMapping("/sendTopicBroadcastMessage2")
+    public String sendTopicBroadcastMessage2() {
+        String messageId = String.valueOf(UUID.randomUUID());
+        String messageData = "message: log.info ";
+        String createTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        Map<String, Object> manMap = new HashMap<>();
+        manMap.put("messageId", messageId);
+        manMap.put("messageData", messageData);
+        manMap.put("createTime", createTime);
+        log.info("sendTopicBroadcastMessage2 {} sendMessage：{}",portConfig.getPort(),manMap);
+        rabbitTemplate.convertAndSend("broadcastTopicExchange", "log.info", manMap);
+        return "ok";
+    }
+
+
+    @GetMapping("/sendFanoutMessage")
+    public String sendFanoutMessage() {
+        String messageId = String.valueOf(UUID.randomUUID());
+        String messageData = "message: testFanoutMessage ";
+        String createTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        Map<String, Object> map = new HashMap<>();
+        map.put("messageId", messageId);
+        map.put("messageData", messageData);
+        map.put("createTime", createTime);
+        log.info("sendFanoutMessage {} sendMessage：{}",portConfig.getPort(),map);
+        rabbitTemplate.convertAndSend("fanoutExchange", null, map);
+        return "ok";
+    }
+
+    @GetMapping("/sendFanoutMessage1")
+    public String sendFanoutMessage1() {
+        String messageId = String.valueOf(UUID.randomUUID());
+        String messageData = "message: testBroadCastFanoutMessage ";
+        String createTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        Map<String, Object> map = new HashMap<>();
+        map.put("messageId", messageId);
+        map.put("messageData", messageData);
+        map.put("createTime", createTime);
+        log.info("sendFanoutMessage1 {} sendMessage：{}",portConfig.getPort(),map);
+        rabbitTemplate.convertAndSend("broadcastFanoutExchange", null, map);
+        return "ok";
+    }
 }
