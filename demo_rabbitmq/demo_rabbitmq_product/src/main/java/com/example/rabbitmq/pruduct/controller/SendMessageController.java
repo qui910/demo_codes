@@ -23,6 +23,8 @@ public class SendMessageController {
     @Autowired
     private PortConfig portConfig;
 
+    public static final String BUSINESS_EXCHANGE_NAME = "dead.letter.demo.simple.business.exchange";
+
     /**
      * 直联交换机
      */
@@ -141,4 +143,17 @@ public class SendMessageController {
         rabbitTemplate.convertAndSend("broadcastFanoutExchange", null, map);
         return "ok";
     }
+
+    @GetMapping("sendDeadLetterMessage")
+    public void sendMsg(String msg){
+        String messageId = String.valueOf(UUID.randomUUID());
+        String createTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        Map<String, Object> map = new HashMap<>();
+        map.put("messageId", messageId);
+        map.put("messageData", msg);
+        map.put("createTime", createTime);
+        log.info("sendFanoutMessage1 {} sendMessage：{}",portConfig.getPort(),map);
+        rabbitTemplate.convertAndSend(BUSINESS_EXCHANGE_NAME, null, map);
+    }
+
 }

@@ -851,6 +851,7 @@ public class FanoutReceiverB {
 ### 5.3.2 发布订阅模式
 实现发布订阅模式，针对多个消费者而言，每个消费者中的队列都必须是不同的。即消费者1是，fanout.A，消费者2是，fanout.A1。这样才能保证同时监听到消息。
 
+交换机 --> 路由Key --> 队列
 broadcastFanoutExchange --> null  --> 消费者1  fanout.A.spring.XXXX   
                                   --> 消费者2  fanout.A.spring.XXXX
 
@@ -1291,8 +1292,130 @@ public class RabbitMQConsumer {
 }
 ```
 ## 5.5 死信队列
-死信队列，也叫死信队列，是一种消息队列，消息在发送之后，如果一直没有被消费，则会被投递到死信队列中。
 
+### 5.5.1 死信队列的定义
+死信，在官网中对应的单词为“Dead Letter”，可以看出翻译确实非常的简单粗暴。那么死信是个什么东西呢？
+
+“死信”是RabbitMQ中的一种消息机制，当你在消费消息时，如果队列里的消息出现以下情况：
+
+消息被否定确认，使用 channel.basicNack 或 channel.basicReject ，并且此时requeue 属性被设置为false。
+消息在队列的存活时间超过设置的TTL时间。
+消息队列的消息数量已经超过最大队列长度。
+那么该消息将成为“死信”。
+
+“死信”消息会被RabbitMQ进行特殊处理，如果配置了死信队列信息，那么该消息将会被丢进死信队列中，如果没有配置，则该消息将会被丢弃。
+
+### 5.5.2 死信队列的配置
+大概可以分为以下步骤：
+
+配置业务队列，绑定到业务交换机上
+为业务队列配置死信交换机和路由key
+为死信交换机配置死信队列
+注意，并不是直接声明一个公共的死信队列，然后所以死信消息就自己跑到死信队列里去了。而是为每个需要使用死信的业务队列配置一个死信交换机，这里同一个项目的死信交换机可以共用一个，然后为每个业务队列分配一个单独的路由key。
+
+有了死信交换机和路由key后，接下来，就像配置业务队列一样，配置死信队列，然后绑定在死信交换机上。也就是说，死信队列并不是什么特殊的队列，只不过是绑定在死信交换机上的队列。死信交换机也不是什么特殊的交换机，只不过是用来接受死信的交换机，所以可以为任何类型【Direct、Fanout、Topic】。一般来说，会为每个业务队列分配一个独有的路由key，并对应的配置一个死信队列进行监听，也就是说，一般会为每个重要的业务队列配置一个死信队列。
+
+### 5.5.3 示例
+
+业务交换机 -->  业务路由  --> 业务队列   -->  死信交换机  --> 死信路由 -->  死信队列
+business.exchange --> null --> business.queuea --> deadletter.exchange --> deadletter.queuea.routingkey --> deadletter.queuea 
+                           --> business.queueb                         --> deadletter.queueb.routingkey --> deadletter.queueb
+
+- 生产者
+
+```java
+// 配置死信队列
+// 声明了两个Exchange，一个是业务Exchange，另一个是死信Exchange，业务Exchange下绑定了两个业务队列，业务队列都配置了同一个死信Exchange，并分别配置了路由key，在死信Exchange下绑定了两个死信队列，设置的路由key分别为业务队列里配置的路由key
+
+@EnableRabbit
+@Configuration
+public class DeadLetterRabbitConfig {
+
+    public static final String BUSINESS_EXCHANGE_NAME = "dead.letter.demo.simple.business.exchange";
+    public static final String BUSINESS_QUEUEA_NAME = "dead.letter.demo.simple.business.queuea";
+    public static final String BUSINESS_QUEUEB_NAME = "dead.letter.demo.simple.business.queueb";
+    public static final String DEAD_LETTER_EXCHANGE = "dead.letter.demo.simple.deadletter.exchange";
+    public static final String DEAD_LETTER_QUEUEA_ROUTING_KEY = "dead.letter.demo.simple.deadletter.queuea.routingkey";
+    public static final String DEAD_LETTER_QUEUEB_ROUTING_KEY = "dead.letter.demo.simple.deadletter.queueb.routingkey";
+    public static final String DEAD_LETTER_QUEUEA_NAME = "dead.letter.demo.simple.deadletter.queuea";
+    public static final String DEAD_LETTER_QUEUEB_NAME = "dead.letter.demo.simple.deadletter.queueb";
+
+    // 声明业务Exchange
+    @Bean("businessExchange")
+    public FanoutExchange businessExchange(){ return new FanoutExchange(BUSINESS_EXCHANGE_NAME); }
+
+    // 声明死信Exchange
+    @Bean("deadLetterExchange")
+    public DirectExchange deadLetterExchange(){ return new DirectExchange(DEAD_LETTER_EXCHANGE); }
+
+    // 声明业务队列A
+    @Bean("businessQueueA")
+    public Queue businessQueueA(){
+        Map<String, Object> args = new HashMap<>(2);
+        // x-dead-letter-exchange 这里声明当前队列绑定的死信交换机
+        args.put("x-dead-letter-exchange", DEAD_LETTER_EXCHANGE);
+        // x-dead-letter-routing-key 这里声明当前队列的死信路由key
+        args.put("x-dead-letter-routing-key", DEAD_LETTER_QUEUEA_ROUTING_KEY);
+        return QueueBuilder.durable(BUSINESS_QUEUEA_NAME).withArguments(args).build();
+    }
+
+    // 声明业务队列B
+    @Bean("businessQueueB")
+    public Queue businessQueueB(){
+        Map<String, Object> args = new HashMap<>(2);
+        // x-dead-letter-exchange 这里声明当前队列绑定的死信交换机
+        args.put("x-dead-letter-exchange", DEAD_LETTER_EXCHANGE);
+        // x-dead-letter-routing-key 这里声明当前队列的死信路由key
+        args.put("x-dead-letter-routing-key", DEAD_LETTER_QUEUEB_ROUTING_KEY);
+        return QueueBuilder.durable(BUSINESS_QUEUEB_NAME).withArguments(args).build();
+    }
+
+    // 声明死信队列A
+    @Bean("deadLetterQueueA")
+    public Queue deadLetterQueueA(){ return new Queue(DEAD_LETTER_QUEUEA_NAME); }
+
+    // 声明死信队列B 
+    @Bean("deadLetterQueueB")
+    public Queue deadLetterQueueB(){ return new Queue(DEAD_LETTER_QUEUEB_NAME); } 
+    
+    // 声明业务队列A绑定关系 
+    @Bean public Binding businessBindingA(@Qualifier("businessQueueA") Queue queue,
+                                          @Qualifier("businessExchange") FanoutExchange exchange){ 
+        return BindingBuilder.bind(queue).to(exchange); 
+    } 
+    
+    // 声明业务队列B绑定关系 
+    @Bean public Binding businessBindingB(@Qualifier("businessQueueB") Queue queue, 
+                                          @Qualifier("businessExchange") FanoutExchange exchange){ 
+        return BindingBuilder.bind(queue).to(exchange); 
+    } 
+    
+    // 声明死信队列A绑定关系 
+    @Bean public Binding deadLetterBindingA(@Qualifier("deadLetterQueueA") Queue queue, 
+                                            @Qualifier("deadLetterExchange") DirectExchange exchange){ 
+        return BindingBuilder.bind(queue).to(exchange).with(DEAD_LETTER_QUEUEA_ROUTING_KEY); 
+    } 
+    
+    // 声明死信队列B绑定关系 
+    @Bean public Binding deadLetterBindingB(@Qualifier("deadLetterQueueB") Queue queue, 
+                                            @Qualifier("deadLetterExchange") DirectExchange exchange){ 
+        return BindingBuilder.bind(queue).to(exchange).with(DEAD_LETTER_QUEUEB_ROUTING_KEY); 
+    }
+}
+
+
+// 配置文件application.yml
+spring: 
+    rabbitmq: 
+        host: localhost 
+        password: guest 
+        username: guest 
+        listener: 
+            type: simple 
+            simple: 
+                default-requeue-rejected: false   // 记得将default-requeue-rejected属性设置为false
+                acknowledge-mode: manual
+```
 
 
 
@@ -1327,11 +1450,12 @@ public class RabbitMQConfig {
 - ~~[RabbitMQ详解，用心看完这一篇就够了【重点】](https://blog.csdn.net/weixin_42039228/article/details/123493937)~~
 - ~~[RabbitMQ六种工作模式与应用场景](https://blog.csdn.net/weixin_43452467/article/details/124988506)~~
 - [RabbitMQ教程](https://www.tizi365.com/course/1.html)
-- [SpringBoot整合RabbitMQ实现六种工作模式](https://segmentfault.com/a/1190000042233182)
-- [SpringBoot整合rabbitMQ 启动服务后便自动创建交换机，队列，绑定关系等](https://blog.csdn.net/qq_41712271/article/details/115675092)
-- [RabbitMQ 自动创建队列/交换器/绑定](https://cloud.tencent.com/developer/article/1668606)
+- ~~[SpringBoot整合RabbitMQ实现六种工作模式](https://segmentfault.com/a/1190000042233182)~~
+- ~~[SpringBoot整合rabbitMQ 启动服务后便自动创建交换机，队列，绑定关系等](https://blog.csdn.net/qq_41712271/article/details/115675092)~~
+- ~~[RabbitMQ 自动创建队列/交换器/绑定](https://cloud.tencent.com/developer/article/1668606)~~
 - ~~[如何在rabbitmq中实现一个生产者，多个消费者，多个消费者都能收到同一条消息](https://blog.csdn.net/weixin_43757027/article/details/124615895)~~
 - ~~[中间件系列一 RabbitMQ之安装和Hello World Demo](https://blog.csdn.net/hry2015/article/details/79016854)~~
 - ~~[中间件系列三 RabbitMQ之交换机的四种类型和属性](https://blog.csdn.net/hry2015/article/details/79118804)~~
 - ~~[中间件系列四 RabbitMQ之Fanout exchange（扇型交换机）之发布订阅](https://blog.csdn.net/hry2015/article/details/79144038)~~
+- ~~[【RabbitMQ】一文带你搞定RabbitMQ死信队列](https://mfrank2016.github.io/breeze-blog/2020/05/04/rabbitmq/rabbitmq-how-to-use-dead-letter-queue/)~~
 - 
