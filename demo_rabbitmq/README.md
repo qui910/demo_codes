@@ -1614,9 +1614,414 @@ channel.basicPublish(exchangeName, routingKey, mandatory, properties, "msg body"
 
 还需要注意的一点是，如果不设置TTL，表示消息永远不会过期，如果将TTL设置为0，则表示除非此时可以直接投递该消息到消费者，否则该消息将会被丢弃。
 
+### 5.6.4 延迟队列的实现
+
+#### 5.6.4.1 通过队列的TTL实现
+延时队列，不就是想要消息延迟多久被处理吗，TTL则刚好能让消息在延迟多久之后成为死信，另一方面，成为死信的消息都会被投递到死信队列里，这样只需要消费者一直消费死信队列里的消息就万事大吉了，因为里面的消息都是希望被立即处理的消息。
+
+![img_1.png](image/img_1.png)
+
+- 先声明交换机、队列以及他们的绑定关系
+```java
+@Configuration
+public class RabbitMQConfig {
+
+    public static final String DELAY_EXCHANGE_NAME = "delay.queue.demo.business.exchange";
+    public static final String DELAY_QUEUEA_NAME = "delay.queue.demo.business.queuea";
+    public static final String DELAY_QUEUEB_NAME = "delay.queue.demo.business.queueb";
+    public static final String DELAY_QUEUEA_ROUTING_KEY = "delay.queue.demo.business.queuea.routingkey";
+    public static final String DELAY_QUEUEB_ROUTING_KEY = "delay.queue.demo.business.queueb.routingkey";
+    public static final String DEAD_LETTER_EXCHANGE = "delay.queue.demo.deadletter.exchange";
+    public static final String DEAD_LETTER_QUEUEA_ROUTING_KEY = "delay.queue.demo.deadletter.delay_10s.routingkey";
+    public static final String DEAD_LETTER_QUEUEB_ROUTING_KEY = "delay.queue.demo.deadletter.delay_60s.routingkey";
+    public static final String DEAD_LETTER_QUEUEA_NAME = "delay.queue.demo.deadletter.queuea";
+    public static final String DEAD_LETTER_QUEUEB_NAME = "delay.queue.demo.deadletter.queueb";
+
+    // 声明延时Exchange
+    @Bean("delayExchange")
+    public DirectExchange delayExchange(){
+        return new DirectExchange(DELAY_EXCHANGE_NAME);
+    }
+
+    // 声明死信Exchange
+    @Bean("deadLetterExchange")
+    public DirectExchange deadLetterExchange(){
+        return new DirectExchange(DEAD_LETTER_EXCHANGE);
+    }
+
+    // 声明延时队列A 延时10s
+    // 并绑定到对应的死信交换机
+    @Bean("delayQueueA")
+    public Queue delayQueueA(){
+        Map<String, Object> args = new HashMap<>(2);
+        // x-dead-letter-exchange    这里声明当前队列绑定的死信交换机
+        args.put("x-dead-letter-exchange", DEAD_LETTER_EXCHANGE);
+        // x-dead-letter-routing-key  这里声明当前队列的死信路由key
+        args.put("x-dead-letter-routing-key", DEAD_LETTER_QUEUEA_ROUTING_KEY);
+        // x-message-ttl  声明队列的TTL
+        args.put("x-message-ttl", 6000);
+        return QueueBuilder.durable(DELAY_QUEUEA_NAME).withArguments(args).build();
+    }
+
+    // 声明延时队列B 延时 60s
+    // 并绑定到对应的死信交换机
+    @Bean("delayQueueB")
+    public Queue delayQueueB(){
+        Map<String, Object> args = new HashMap<>(2);
+        // x-dead-letter-exchange    这里声明当前队列绑定的死信交换机
+        args.put("x-dead-letter-exchange", DEAD_LETTER_EXCHANGE);
+        // x-dead-letter-routing-key  这里声明当前队列的死信路由key
+        args.put("x-dead-letter-routing-key", DEAD_LETTER_QUEUEB_ROUTING_KEY);
+        // x-message-ttl  声明队列的TTL
+        args.put("x-message-ttl", 60000);
+        return QueueBuilder.durable(DELAY_QUEUEB_NAME).withArguments(args).build();
+    }
+
+    // 声明死信队列A 用于接收延时10s处理的消息
+    @Bean("deadLetterQueueA")
+    public Queue deadLetterQueueA(){
+        return new Queue(DEAD_LETTER_QUEUEA_NAME);
+    }
+
+    // 声明死信队列B 用于接收延时60s处理的消息
+    @Bean("deadLetterQueueB")
+    public Queue deadLetterQueueB(){
+        return new Queue(DEAD_LETTER_QUEUEB_NAME);
+    }
+
+    // 声明延时队列A绑定关系
+    @Bean
+    public Binding delayBindingA(@Qualifier("delayQueueA") Queue queue,
+                                    @Qualifier("delayExchange") DirectExchange exchange){
+        return BindingBuilder.bind(queue).to(exchange).with(DELAY_QUEUEA_ROUTING_KEY);
+    }
+
+    // 声明业务队列B绑定关系
+    @Bean
+    public Binding delayBindingB(@Qualifier("delayQueueB") Queue queue,
+                                    @Qualifier("delayExchange") DirectExchange exchange){
+        return BindingBuilder.bind(queue).to(exchange).with(DELAY_QUEUEB_ROUTING_KEY);
+    }
+
+    // 声明死信队列A绑定关系
+    @Bean
+    public Binding deadLetterBindingA(@Qualifier("deadLetterQueueA") Queue queue,
+                                    @Qualifier("deadLetterExchange") DirectExchange exchange){
+        return BindingBuilder.bind(queue).to(exchange).with(DEAD_LETTER_QUEUEA_ROUTING_KEY);
+    }
+
+    // 声明死信队列B绑定关系
+    @Bean
+    public Binding deadLetterBindingB(@Qualifier("deadLetterQueueB") Queue queue,
+                                      @Qualifier("deadLetterExchange") DirectExchange exchange){
+        return BindingBuilder.bind(queue).to(exchange).with(DEAD_LETTER_QUEUEB_ROUTING_KEY);
+    }
+}
+```
+- 创建两个消费者，分别对两个死信队列的消息进行消费
+```java
+
+@Slf4j
+@Component
+public class DeadLetterQueueConsumer {
+
+    @RabbitListener(queues = DEAD_LETTER_QUEUEA_NAME)
+    public void receiveA(Message message, Channel channel) throws IOException {
+        String msg = new String(message.getBody());
+        log.info("当前时间：{},死信队列A收到消息：{}", new Date().toString(), msg);
+        channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+    }
+
+    @RabbitListener(queues = DEAD_LETTER_QUEUEB_NAME)
+    public void receiveB(Message message, Channel channel) throws IOException {
+        String msg = new String(message.getBody());
+        log.info("当前时间：{},死信队列B收到消息：{}", new Date().toString(), msg);
+        channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+    }
+}
+```
+- 消息的生产者
+```java
+
+@Component
+public class DelayMessageSender {
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
+    public void sendMsg(String msg, DelayTypeEnum type){
+        switch (type){
+            case DELAY_10s:
+                rabbitTemplate.convertAndSend(DELAY_EXCHANGE_NAME, DELAY_QUEUEA_ROUTING_KEY, msg);
+                break;
+            case DELAY_60s:
+                rabbitTemplate.convertAndSend(DELAY_EXCHANGE_NAME, DELAY_QUEUEB_ROUTING_KEY, msg);
+                break;
+        }
+    }
+}
+
+@Slf4j
+@RequestMapping("rabbitmq")
+@RestController
+public class RabbitMQMsgController {
+
+    @Autowired
+    private DelayMessageSender sender;
+
+    @RequestMapping("sendmsg")
+    public void sendMsg(String msg, Integer delayType){
+        log.info("当前时间：{},收到请求，msg:{},delayType:{}", new Date(), msg, delayType);
+        sender.sendMsg(msg, Objects.requireNonNull(DelayTypeEnum.getDelayTypeEnumByValue(delayType)));
+    }
+}
+```
+
+缺点：每增加一个新的时间需求，就要新增一个队列，这里只有6s和60s两个时间选项，如果需要一个小时后处理，那么就需要增加TTL为一个小时的队列，如果是预定会议室然后提前通知这样的场景，岂不是要增加无数个队列才能满足需求？？
 
 
+#### 5.6.4.2 通过消息的TTL实现
+尝试将TTL设置在消息属性里
 
+增加一个延时队列，用于接收设置为任意延时时长的消息，增加一个相应的死信队列和routingkey：
+```java
+@Configuration
+public class RabbitMQConfig {
+
+    public static final String DELAY_EXCHANGE_NAME = "delay.queue.demo.business.exchange";
+    public static final String DELAY_QUEUEC_NAME = "delay.queue.demo.business.queuec";
+    public static final String DELAY_QUEUEC_ROUTING_KEY = "delay.queue.demo.business.queuec.routingkey";
+    public static final String DEAD_LETTER_EXCHANGE = "delay.queue.demo.deadletter.exchange";
+    public static final String DEAD_LETTER_QUEUEC_ROUTING_KEY = "delay.queue.demo.deadletter.delay_anytime.routingkey";
+    public static final String DEAD_LETTER_QUEUEC_NAME = "delay.queue.demo.deadletter.queuec";
+
+    // 声明延时Exchange
+    @Bean("delayExchange")
+    public DirectExchange delayExchange(){
+        return new DirectExchange(DELAY_EXCHANGE_NAME);
+    }
+
+    // 声明死信Exchange
+    @Bean("deadLetterExchange")
+    public DirectExchange deadLetterExchange(){
+        return new DirectExchange(DEAD_LETTER_EXCHANGE);
+    }
+
+    // 声明延时队列C 不设置TTL
+    // 并绑定到对应的死信交换机
+    @Bean("delayQueueC")
+    public Queue delayQueueC(){
+        Map<String, Object> args = new HashMap<>(3);
+        // x-dead-letter-exchange    这里声明当前队列绑定的死信交换机
+        args.put("x-dead-letter-exchange", DEAD_LETTER_EXCHANGE);
+        // x-dead-letter-routing-key  这里声明当前队列的死信路由key
+        args.put("x-dead-letter-routing-key", DEAD_LETTER_QUEUEC_ROUTING_KEY);
+        return QueueBuilder.durable(DELAY_QUEUEC_NAME).withArguments(args).build();
+    }
+
+    // 声明死信队列C 用于接收延时任意时长处理的消息
+    @Bean("deadLetterQueueC")
+    public Queue deadLetterQueueC(){
+        return new Queue(DEAD_LETTER_QUEUEC_NAME);
+    }
+
+    // 声明延时列C绑定关系
+    @Bean
+    public Binding delayBindingC(@Qualifier("delayQueueC") Queue queue,
+                                 @Qualifier("delayExchange") DirectExchange exchange){
+        return BindingBuilder.bind(queue).to(exchange).with(DELAY_QUEUEC_ROUTING_KEY);
+    }
+
+    // 声明死信队列C绑定关系
+    @Bean
+    public Binding deadLetterBindingC(@Qualifier("deadLetterQueueC") Queue queue,
+                                      @Qualifier("deadLetterExchange") DirectExchange exchange){
+        return BindingBuilder.bind(queue).to(exchange).with(DEAD_LETTER_QUEUEC_ROUTING_KEY);
+    }
+}
+```
+- 增加一个死信队列C的消费者：
+```java
+@RabbitListener(queues = DEAD_LETTER_QUEUEC_NAME)
+public void receiveC(Message message, Channel channel) throws IOException {
+    String msg = new String(message.getBody());
+    log.info("当前时间：{},死信队列C收到消息：{}", new Date().toString(), msg);
+    channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+}
+```
+
+缺点：如果使用在消息属性上设置TTL的方式，消息可能并不会按时“死亡“，因为RabbitMQ只会检查第一个消息是否过期，如果过期则丢到死信队列，索引如果第一个消息的延时时长很长，而第二个消息的延时时长很短，则第二个消息并不会优先得到执行。
+
+先发了一个延时时长为20s的消息，然后发了一个延时时长为2s的消息，结果显示，第二个消息会在等第一个消息成为死信后才会“死亡“。这样第二个消息的延时时长会比第一个消息长。
+
+#### 5.6.4.3 通过插件实现
+上文中提到的问题，确实是一个硬伤，如果不能实现在消息粒度上添加TTL，并使其在设置的TTL时间及时死亡，就无法设计成一个通用的延时队列。
+
+那如何解决这个问题呢？不要慌，安装一个插件即可：https://www.rabbitmq.com/community-plugins.html ，下载rabbitmq_delayed_message_exchange插件，然后解压放置到RabbitMQ的插件目录。
+
+- Docker RabbitMQ 安装
+
+首先我们需要下载 rabbitmq_delayed_message_exchange 插件，这是一个 GitHub 上的开源项目，我们直接下载即可：https://github.com/rabbitmq/rabbitmq-delayed-message-exchange/releases
+
+下载完成后在命令行执行如下命令将下载文件拷贝到 Docker 容器中去：
+```bash
+(base) [root@centos ~]# docker exec -it rabbitmq /bin/bash
+root@1a234064ac91:/# pwd
+/
+root@1a234064ac91:/# ls
+bin  boot  dev  etc  home  lib  lib32  lib64  libx32  media  mnt  opt  plugins  proc  root  run  sbin  srv  sys  tmp  usr  var
+root@1a234064ac91:/# cd plugins
+root@1a234064ac91:/plugins# ls
+README                         khepri_mnesia_migration-0.4.0             rabbitmq_federation_management-3.13.1    rabbitmq_stream_common-3.13.1
+accept-0.3.5                   oauth2_client-3.13.1                      rabbitmq_jms_topic_exchange-3.13.1       rabbitmq_stream_management-3.13.1
+amqp10_client-3.13.1           observer_cli-1.7.3                        rabbitmq_management-3.13.1               rabbitmq_top-3.13.1
+amqp10_common-3.13.1           osiris-1.8.1                              rabbitmq_management_agent-3.13.1         rabbitmq_tracing-3.13.1
+amqp_client-3.13.1             prometheus-4.11.0                         rabbitmq_mqtt-3.13.1                     rabbitmq_trust_store-3.13.1
+aten-0.6.0                     quantile_estimator-0.2.1                  rabbitmq_peer_discovery_aws-3.13.1       rabbitmq_web_dispatch-3.13.1
+base64url-1.0.1                ra-2.9.1                                  rabbitmq_peer_discovery_common-3.13.1    rabbitmq_web_mqtt-3.13.1
+cowboy-2.12.0                  rabbit-3.13.1                             rabbitmq_peer_discovery_consul-3.13.1    rabbitmq_web_mqtt_examples-3.13.1
+cowlib-2.13.0                  rabbit_common-3.13.1                      rabbitmq_peer_discovery_etcd-3.13.1      rabbitmq_web_stomp-3.13.1
+credentials_obfuscation-3.4.0  rabbitmq_amqp1_0-3.13.1                   rabbitmq_peer_discovery_k8s-3.13.1       rabbitmq_web_stomp_examples-3.13.1
+cuttlefish-3.1.0               rabbitmq_auth_backend_cache-3.13.1        rabbitmq_prelaunch-3.13.1                ranch-2.1.0
+eetcd-0.3.6                    rabbitmq_auth_backend_http-3.13.1         rabbitmq_prometheus-3.13.1               recon-2.5.3
+enough-0.1.0                   rabbitmq_auth_backend_ldap-3.13.1         rabbitmq_random_exchange-3.13.1          redbug-2.0.7
+gen_batch_server-0.8.8         rabbitmq_auth_backend_oauth2-3.13.1       rabbitmq_recent_history_exchange-3.13.1  seshat-0.6.1
+getopt-1.0.2                   rabbitmq_auth_mechanism_ssl-3.13.1        rabbitmq_sharding-3.13.1                 stdout_formatter-0.2.4
+gun-1.3.3                      rabbitmq_aws-3.13.1                       rabbitmq_shovel-3.13.1                   syslog-4.0.0
+horus-0.2.5                    rabbitmq_consistent_hash_exchange-3.13.1  rabbitmq_shovel_management-3.13.1        sysmon_handler-1.3.0
+jose-1.11.3                    rabbitmq_event_exchange-3.13.1            rabbitmq_stomp-3.13.1                    systemd-0.6.1
+khepri-0.13.0                  rabbitmq_federation-3.13.1                rabbitmq_stream-3.13.1                   thoas-1.0.0
+root@1a234064ac91:/plugins# exit
+exit
+# 第一个参数是宿主机上的文件地址，第二个参数是拷贝到容器的位置。
+(base) [root@centos ~]# docker cp ./rabbitmq_delayed_message_exchange-3.13.0.ez rabbitmq:/plugins
+Successfully copied 47.1kB to rabbitmq:/opt/rabbitmq/plugins
+(base) [root@centos ~]# 
+```
+接下来再执行如下命令进入到 RabbitMQ 容器中：
+```bash
+(base) [root@centos ~]# docker exec -it rabbitmq /bin/bash
+root@1a234064ac91:/# 
+```
+进入到容器之后，执行如下命令启用插件：
+```bash
+root@1a234064ac91:/# rabbitmq-plugins enable rabbitmq_delayed_message_exchange
+Enabling plugins on node rabbit@1a234064ac91:
+rabbitmq_delayed_message_exchange
+The following plugins have been configured:
+  rabbitmq_delayed_message_exchange
+  rabbitmq_federation
+  rabbitmq_management
+  rabbitmq_management_agent
+  rabbitmq_prometheus
+  rabbitmq_web_dispatch
+Applying plugin configuration to rabbit@1a234064ac91...
+The following plugins have been enabled:
+  rabbitmq_delayed_message_exchange
+
+started 1 plugins.
+root@1a234064ac91:/# 
+```
+启用成功之后，还可以通过如下命令查看所有安装的插件，看看是否有我们刚刚安装过的插件，如下：
+```bash
+root@1a234064ac91:/# rabbitmq-plugins list
+Listing plugins with pattern ".*" ...
+ Configured: E = explicitly enabled; e = implicitly enabled
+ | Status: * = running on rabbit@1a234064ac91
+ |/
+[  ] rabbitmq_amqp1_0                   (pending upgrade to 3.13.1)
+[  ] rabbitmq_auth_backend_cache        (pending upgrade to 3.13.1)
+[  ] rabbitmq_auth_backend_http         (pending upgrade to 3.13.1)
+[  ] rabbitmq_auth_backend_ldap         (pending upgrade to 3.13.1)
+[  ] rabbitmq_auth_backend_oauth2       (pending upgrade to 3.13.1)
+[  ] rabbitmq_auth_mechanism_ssl        (pending upgrade to 3.13.1)
+[  ] rabbitmq_consistent_hash_exchange  (pending upgrade to 3.13.1)
+[E*] rabbitmq_delayed_message_exchange 3.13.0
+[  ] rabbitmq_event_exchange            (pending upgrade to 3.13.1)
+[e*] rabbitmq_federation               3.13.1
+[  ] rabbitmq_federation_management     (pending upgrade to 3.13.1)
+[  ] rabbitmq_jms_topic_exchange        (pending upgrade to 3.13.1)
+[E*] rabbitmq_management               3.13.1
+[e*] rabbitmq_management_agent         3.13.1
+[  ] rabbitmq_mqtt                      (pending upgrade to 3.13.1)
+[  ] rabbitmq_peer_discovery_aws        (pending upgrade to 3.13.1)
+[  ] rabbitmq_peer_discovery_common     (pending upgrade to 3.13.1)
+[  ] rabbitmq_peer_discovery_consul     (pending upgrade to 3.13.1)
+[  ] rabbitmq_peer_discovery_etcd       (pending upgrade to 3.13.1)
+[  ] rabbitmq_peer_discovery_k8s        (pending upgrade to 3.13.1)
+[E*] rabbitmq_prometheus               3.13.1
+[  ] rabbitmq_random_exchange           (pending upgrade to 3.13.1)
+[  ] rabbitmq_recent_history_exchange   (pending upgrade to 3.13.1)
+[  ] rabbitmq_sharding                  (pending upgrade to 3.13.1)
+[  ] rabbitmq_shovel                    (pending upgrade to 3.13.1)
+[  ] rabbitmq_shovel_management         (pending upgrade to 3.13.1)
+[  ] rabbitmq_stomp                     (pending upgrade to 3.13.1)
+[  ] rabbitmq_stream                    (pending upgrade to 3.13.1)
+[  ] rabbitmq_stream_management         (pending upgrade to 3.13.1)
+[  ] rabbitmq_top                       (pending upgrade to 3.13.1)
+[  ] rabbitmq_tracing                   (pending upgrade to 3.13.1)
+[  ] rabbitmq_trust_store               (pending upgrade to 3.13.1)
+[e*] rabbitmq_web_dispatch             3.13.1
+[  ] rabbitmq_web_mqtt                  (pending upgrade to 3.13.1)
+[  ] rabbitmq_web_mqtt_examples         (pending upgrade to 3.13.1)
+[  ] rabbitmq_web_stomp                 (pending upgrade to 3.13.1)
+[  ] rabbitmq_web_stomp_examples        (pending upgrade to 3.13.1)
+root@1a234064ac91:/# 
+```
+
+声明几个Bean
+```java
+@Configuration
+public class DelayedRabbitMQConfig {
+    public static final String DELAYED_QUEUE_NAME = "delay.queue.demo.delay.queue";
+    public static final String DELAYED_EXCHANGE_NAME = "delay.queue.demo.delay.exchange";
+    public static final String DELAYED_ROUTING_KEY = "delay.queue.demo.delay.routingkey";
+
+    @Bean
+    public Queue immediateQueue() {
+        return new Queue(DELAYED_QUEUE_NAME);
+    }
+
+    @Bean
+    public CustomExchange customExchange() {
+        Map<String, Object> args = new HashMap<>();
+        args.put("x-delayed-type", "direct");
+        return new CustomExchange(DELAYED_EXCHANGE_NAME, "x-delayed-message", true, false, args);
+    }
+
+    @Bean
+    public Binding bindingNotify(@Qualifier("immediateQueue") Queue queue,
+                                 @Qualifier("customExchange") CustomExchange customExchange) {
+        return BindingBuilder.bind(queue).to(customExchange).with(DELAYED_ROUTING_KEY).noargs();
+    }
+}
+```
+controller层再添加一个入口：
+```java
+@RequestMapping("delayMsg2")
+public void delayMsg2(String msg, Integer delayTime) {
+    log.info("当前时间：{},收到请求，msg:{},delayTime:{}", new Date(), msg, delayTime);
+    sender.sendDelayMsg(msg, delayTime);
+}
+```
+消息生产者的代码也需要修改：
+```java
+public void sendDelayMsg(String msg, Integer delayTime) {
+    rabbitTemplate.convertAndSend(DELAYED_EXCHANGE_NAME, DELAYED_ROUTING_KEY, msg, a ->{
+        a.getMessageProperties().setDelay(delayTime);
+        return a;
+    });
+}
+```
+再创建一个消费者
+```java
+@RabbitListener(queues = DELAYED_QUEUE_NAME)
+public void receiveD(Message message, Channel channel) throws IOException {
+    String msg = new String(message.getBody());
+    log.info("当前时间：{},延时队列收到消息：{}", new Date().toString(), msg);
+    channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+}
+```
 
 
 # 6 整合Springboot
@@ -1657,4 +2062,5 @@ public class RabbitMQConfig {
 - ~~[【RabbitMQ】一文带你搞定RabbitMQ延迟队列](https://www.cnblogs.com/mfrank/p/11260355.html)~~
 - ~~[RabbitMQ高级：死信队列详解](https://blog.csdn.net/w15558056319/article/details/123505899)~~
 - ~~[RabbitMQ死信队列在SpringBoot中的使用](https://juejin.cn/post/6844904120030085134)~~
+- ~~[RabbitMQ 实现延迟队列的两种方式！](https://www.51cto.com/article/694215.html)~~
 
