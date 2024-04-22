@@ -1415,8 +1415,83 @@ spring:
             simple: 
                 default-requeue-rejected: false   // 记得将default-requeue-rejected属性设置为false
                 acknowledge-mode: manual
-```
 
+// 消息发送
+@GetMapping("sendDeadLetterMessage")
+public void sendMsg(String msg){
+    String messageId = String.valueOf(UUID.randomUUID());
+    String createTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    Map<String, Object> map = new HashMap<>();
+    map.put("messageId", messageId);
+    map.put("messageData", msg);
+    map.put("createTime", createTime);
+    log.info("sendFanoutMessage1 {} sendMessage：{}",portConfig.getPort(),map);
+    rabbitTemplate.convertAndSend(BUSINESS_EXCHANGE_NAME, null, map);
+}
+```
+- 消费者2
+```java
+// 业务队列A接收正常业务消息，当消息内容包含deadletter时，拒绝接收，并转入死信队列
+// 业务队列B不做处理，只接收正常的业务信息，当遇到消息内容为deadletter时,也正常收取
+@Slf4j
+@Component
+public class BusinessMessageReceiver {
+
+    public static final String BUSINESS_QUEUEA_NAME = "dead.letter.demo.simple.business.queuea";
+    public static final String BUSINESS_QUEUEB_NAME = "dead.letter.demo.simple.business.queueb";
+
+   @RabbitListener(queues = BUSINESS_QUEUEA_NAME)
+   public void receiveA(Message message, Channel channel) throws IOException {
+       String msg = new String(message.getBody());
+       log.info("收到业务消息A：{}", msg);
+       boolean ack = true;
+       Exception exception = null;
+       try {
+           if (msg.contains("deadletter")){
+               throw new RuntimeException("dead letter exception");
+           }
+       } catch (Exception e){
+           ack = false;
+           exception = e;
+       }
+
+       if (!ack){
+           log.error("消息消费发生异常，error msg:{}", exception.getMessage(), exception);
+           channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, false);
+       } else {
+           channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+       }
+   }
+
+   @RabbitListener(queues = BUSINESS_QUEUEB_NAME)
+   public void receiveB(Message message, Channel channel) throws IOException {
+       log.info("收到业务消息B：{}" ,new String(message.getBody()));
+       channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+   }
+}
+
+// 死信队列A，可以收到消息
+// 死信队列B，收不到消息
+@Slf4j
+@Component
+public class DeadLetterMessageReceiver {
+
+    public static final String DEAD_LETTER_QUEUEA_NAME = "dead.letter.demo.simple.deadletter.queuea";
+    public static final String DEAD_LETTER_QUEUEB_NAME = "dead.letter.demo.simple.deadletter.queueb";
+    @RabbitListener(queues = DEAD_LETTER_QUEUEA_NAME)
+    public void receiveA(Message message, Channel channel) throws IOException {
+        log.info("收到死信消息A：{}" , new String(message.getBody()));
+        channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+    }
+
+    @RabbitListener(queues = DEAD_LETTER_QUEUEB_NAME)
+    public void receiveB(Message message, Channel channel) throws IOException {
+        log.info("收到死信消息B：{}" , new String(message.getBody()));
+        channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+    }
+
+}
+```
 
 
 ## 5.6 延迟队列
