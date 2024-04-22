@@ -7,6 +7,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * 死信队列测试，业务消息接收者
@@ -23,13 +24,12 @@ public class BusinessMessageReceiver {
     public static final String BUSINESS_QUEUEB_NAME = "dead.letter.demo.simple.business.queueb";
 
    @RabbitListener(queues = BUSINESS_QUEUEA_NAME)
-   public void receiveA(Message message, Channel channel) throws IOException {
-       String msg = new String(message.getBody());
-       log.info("收到业务消息A：{}", msg);
+   public void receiveA(Map testMessage,Message message, Channel channel) throws IOException {
+       log.info("收到业务消息A：{}", testMessage);
        boolean ack = true;
        Exception exception = null;
        try {
-           if (msg.contains("deadletter")){
+           if (testMessage.get("messageData").toString().contains("deadletter")){
                throw new RuntimeException("dead letter exception");
            }
        } catch (Exception e){
@@ -46,8 +46,8 @@ public class BusinessMessageReceiver {
    }
 
    @RabbitListener(queues = BUSINESS_QUEUEB_NAME)
-   public void receiveB(Message message, Channel channel) throws IOException {
-       log.info("收到业务消息B：{}" ,new String(message.getBody()));
+   public void receiveB(Map testMessage,Message message, Channel channel) throws IOException {
+       log.info("收到业务消息B：{}" ,testMessage);
        channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
    }
 }

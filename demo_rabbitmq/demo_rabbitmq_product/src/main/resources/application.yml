@@ -15,3 +15,8 @@ spring:
     #消息确认配置项
     #确认消息已发送到交换机(Exchange)
     publisher-confirm-type: correlated
+    listener:
+      type: simple
+      simple:
+        default-requeue-rejected: false
+        acknowledge-mode: manual

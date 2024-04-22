@@ -1404,7 +1404,7 @@ public class DeadLetterRabbitConfig {
 }
 
 
-// 配置文件application.yml
+// 配置文件application.yml,新增listener内容
 spring: 
     rabbitmq: 
         host: localhost 
@@ -1429,10 +1429,30 @@ public void sendMsg(String msg){
     rabbitTemplate.convertAndSend(BUSINESS_EXCHANGE_NAME, null, map);
 }
 ```
+
+>2024-04-22 23:16:17.012  INFO 49469 --- [nio-8021-exec-1] c.e.r.p.c.SendMessageController          : sendFanoutMessage1 8021 sendMessage：{createTime=2024-04-22 23:16:17, messageId=de321e2c-f802-45fd-86af-b73ec1b1eaa9, messageData=aaaa}
+2024-04-22 23:16:17.018  INFO 49469 --- [nio-8021-exec-1] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [42.193.39.59:5672]
+2024-04-22 23:16:17.133  INFO 49469 --- [nio-8021-exec-1] o.s.a.r.c.CachingConnectionFactory       : Created new connection: rabbitConnectionFactory#31ee2fdb:0/SimpleConnection@49f7bc1 [delegate=amqp://guest@42.193.39.59:5672/, localPort= 51376]
+2024-04-22 23:16:17.666  INFO 49469 --- [nectionFactory1] c.e.r.pruduct.config.RabbitConfig        : ConfirmCallback-相关数据：null
+2024-04-22 23:16:17.668  INFO 49469 --- [nectionFactory1] c.e.r.pruduct.config.RabbitConfig        : ConfirmCallback-确认情况：true
+2024-04-22 23:16:17.668  INFO 49469 --- [nectionFactory1] c.e.r.pruduct.config.RabbitConfig        : ConfirmCallback-原因：null
+2024-04-22 23:16:39.527  INFO 49469 --- [nio-8021-exec-2] c.e.r.p.c.SendMessageController          : sendFanoutMessage1 8021 sendMessage：{createTime=2024-04-22 23:16:39, messageId=0e8c9e25-0276-4f8b-8e8a-e95166c80ebc, messageData=deadletter}
+2024-04-22 23:16:39.548  INFO 49469 --- [nectionFactory1] c.e.r.pruduct.config.RabbitConfig        : ConfirmCallback-相关数据：null
+2024-04-22 23:16:39.548  INFO 49469 --- [nectionFactory1] c.e.r.pruduct.config.RabbitConfig        : ConfirmCallback-确认情况：true
+2024-04-22 23:16:39.548  INFO 49469 --- [nectionFactory1] c.e.r.pruduct.config.RabbitConfig        : ConfirmCallback-原因：null
+
+
 - 消费者2
 ```java
 // 业务队列A接收正常业务消息，当消息内容包含deadletter时，拒绝接收，并转入死信队列
 // 业务队列B不做处理，只接收正常的业务信息，当遇到消息内容为deadletter时,也正常收取
+/**
+ * 死信队列测试，业务消息接收者
+ * @author pang
+ * @version 1.0
+ * @date 2024-04-22 10:02
+ * @since 1.8
+ **/
 @Slf4j
 @Component
 public class BusinessMessageReceiver {
@@ -1440,38 +1460,44 @@ public class BusinessMessageReceiver {
     public static final String BUSINESS_QUEUEA_NAME = "dead.letter.demo.simple.business.queuea";
     public static final String BUSINESS_QUEUEB_NAME = "dead.letter.demo.simple.business.queueb";
 
-   @RabbitListener(queues = BUSINESS_QUEUEA_NAME)
-   public void receiveA(Message message, Channel channel) throws IOException {
-       String msg = new String(message.getBody());
-       log.info("收到业务消息A：{}", msg);
-       boolean ack = true;
-       Exception exception = null;
-       try {
-           if (msg.contains("deadletter")){
-               throw new RuntimeException("dead letter exception");
-           }
-       } catch (Exception e){
-           ack = false;
-           exception = e;
-       }
+    @RabbitListener(queues = BUSINESS_QUEUEA_NAME)
+    public void receiveA(Map testMessage,Message message, Channel channel) throws IOException {
+        log.info("收到业务消息A：{}", testMessage);
+        boolean ack = true;
+        Exception exception = null;
+        try {
+            if (testMessage.get("messageData").toString().contains("deadletter")){
+                throw new RuntimeException("dead letter exception");
+            }
+        } catch (Exception e){
+            ack = false;
+            exception = e;
+        }
 
-       if (!ack){
-           log.error("消息消费发生异常，error msg:{}", exception.getMessage(), exception);
-           channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, false);
-       } else {
-           channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
-       }
-   }
+        if (!ack){
+            log.error("消息消费发生异常，error msg:{}", exception.getMessage(), exception);
+            channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, false);
+        } else {
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+        }
+    }
 
-   @RabbitListener(queues = BUSINESS_QUEUEB_NAME)
-   public void receiveB(Message message, Channel channel) throws IOException {
-       log.info("收到业务消息B：{}" ,new String(message.getBody()));
-       channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
-   }
+    @RabbitListener(queues = BUSINESS_QUEUEB_NAME)
+    public void receiveB(Map testMessage,Message message, Channel channel) throws IOException {
+        log.info("收到业务消息B：{}" ,testMessage);
+        channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+    }
 }
 
 // 死信队列A，可以收到消息
 // 死信队列B，收不到消息
+/**
+ * 死信队列的消费者
+ * @author pang
+ * @version 1.0
+ * @date 2024-04-22 14:39
+ * @since 1.8
+ **/
 @Slf4j
 @Component
 public class DeadLetterMessageReceiver {
@@ -1479,23 +1505,118 @@ public class DeadLetterMessageReceiver {
     public static final String DEAD_LETTER_QUEUEA_NAME = "dead.letter.demo.simple.deadletter.queuea";
     public static final String DEAD_LETTER_QUEUEB_NAME = "dead.letter.demo.simple.deadletter.queueb";
     @RabbitListener(queues = DEAD_LETTER_QUEUEA_NAME)
-    public void receiveA(Message message, Channel channel) throws IOException {
-        log.info("收到死信消息A：{}" , new String(message.getBody()));
+    public void receiveA(Map testMessage,Message message, Channel channel) throws IOException {
+        log.info("收到死信消息A：{}" , message);
         channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
     }
 
     @RabbitListener(queues = DEAD_LETTER_QUEUEB_NAME)
-    public void receiveB(Message message, Channel channel) throws IOException {
-        log.info("收到死信消息B：{}" , new String(message.getBody()));
+    public void receiveB(Map testMessage,Message message, Channel channel) throws IOException {
+        log.info("收到死信消息B：{}" , message);
         channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
     }
 
-}
+
+
+// 配置文件application.yml,新增listener内容
+spring:
+rabbitmq:
+host: localhost
+password: guest
+username: guest
+listener:
+type: simple
+simple:
+default-requeue-rejected: false   // 记得将default-requeue-rejected属性设置为false
+acknowledge-mode: manual
 ```
+
+>2024-04-22 23:16:17.680  INFO 49471 --- [ntContainer#1-1] c.e.r.c.l.BusinessMessageReceiver        : 收到业务消息A：{createTime=2024-04-22 23:16:17, messageId=de321e2c-f802-45fd-86af-b73ec1b1eaa9, messageData=aaaa}
+2024-04-22 23:16:17.680  INFO 49471 --- [ntContainer#0-1] c.e.r.c.l.BusinessMessageReceiver        : 收到业务消息B：{createTime=2024-04-22 23:16:17, messageId=de321e2c-f802-45fd-86af-b73ec1b1eaa9, messageData=aaaa}
+2024-04-22 23:16:39.553  INFO 49471 --- [ntContainer#1-1] c.e.r.c.l.BusinessMessageReceiver        : 收到业务消息A：{createTime=2024-04-22 23:16:39, messageId=0e8c9e25-0276-4f8b-8e8a-e95166c80ebc, messageData=deadletter}
+2024-04-22 23:16:39.553  INFO 49471 --- [ntContainer#0-1] c.e.r.c.l.BusinessMessageReceiver        : 收到业务消息B：{createTime=2024-04-22 23:16:39, messageId=0e8c9e25-0276-4f8b-8e8a-e95166c80ebc, messageData=deadletter}
+2024-04-22 23:16:39.564 ERROR 49471 --- [ntContainer#1-1] c.e.r.c.l.BusinessMessageReceiver        : 消息消费发生异常，error msg:dead letter exception
+java.lang.RuntimeException: dead letter exception
+at com.example.rabbitmq.custom.listener.BusinessMessageReceiver.receiveA(BusinessMessageReceiver.java:33) ~[classes/:na]
+at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[na:1.8.0_202]
+at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62) ~[na:1.8.0_202]
+at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[na:1.8.0_202]
+at java.lang.reflect.Method.invoke(Method.java:498) ~[na:1.8.0_202]
+at org.springframework.messaging.handler.invocation.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:171) [spring-messaging-5.2.7.RELEASE.jar:5.2.7.RELEASE]
+at org.springframework.messaging.handler.invocation.InvocableHandlerMethod.invoke(InvocableHandlerMethod.java:120) [spring-messaging-5.2.7.RELEASE.jar:5.2.7.RELEASE]
+at org.springframework.amqp.rabbit.listener.adapter.HandlerAdapter.invoke(HandlerAdapter.java:53) [spring-rabbit-2.2.7.RELEASE.jar:2.2.7.RELEASE]
+at org.springframework.amqp.rabbit.listener.adapter.MessagingMessageListenerAdapter.invokeHandler(MessagingMessageListenerAdapter.java:220) [spring-rabbit-2.2.7.RELEASE.jar:2.2.7.RELEASE]
+at org.springframework.amqp.rabbit.listener.adapter.MessagingMessageListenerAdapter.invokeHandlerAndProcessResult(MessagingMessageListenerAdapter.java:148) [spring-rabbit-2.2.7.RELEASE.jar:2.2.7.RELEASE]
+at org.springframework.amqp.rabbit.listener.adapter.MessagingMessageListenerAdapter.onMessage(MessagingMessageListenerAdapter.java:133) [spring-rabbit-2.2.7.RELEASE.jar:2.2.7.RELEASE]
+at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.doInvokeListener(AbstractMessageListenerContainer.java:1585) [spring-rabbit-2.2.7.RELEASE.jar:2.2.7.RELEASE]
+at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.actualInvokeListener(AbstractMessageListenerContainer.java:1504) [spring-rabbit-2.2.7.RELEASE.jar:2.2.7.RELEASE]
+at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.invokeListener(AbstractMessageListenerContainer.java:1492) [spring-rabbit-2.2.7.RELEASE.jar:2.2.7.RELEASE]
+at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.doExecuteListener(AbstractMessageListenerContainer.java:1483) [spring-rabbit-2.2.7.RELEASE.jar:2.2.7.RELEASE]
+at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.executeListener(AbstractMessageListenerContainer.java:1427) [spring-rabbit-2.2.7.RELEASE.jar:2.2.7.RELEASE]
+at org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer.doReceiveAndExecute(SimpleMessageListenerContainer.java:970) ~[spring-rabbit-2.2.7.RELEASE.jar:2.2.7.RELEASE]
+at org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer.receiveAndExecute(SimpleMessageListenerContainer.java:916) ~[spring-rabbit-2.2.7.RELEASE.jar:2.2.7.RELEASE]
+at org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer.access$1600(SimpleMessageListenerContainer.java:83) ~[spring-rabbit-2.2.7.RELEASE.jar:2.2.7.RELEASE]
+at org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer$AsyncMessageProcessingConsumer.mainLoop(SimpleMessageListenerContainer.java:1291) ~[spring-rabbit-2.2.7.RELEASE.jar:2.2.7.RELEASE]
+at org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer$AsyncMessageProcessingConsumer.run(SimpleMessageListenerContainer.java:1197) ~[spring-rabbit-2.2.7.RELEASE.jar:2.2.7.RELEASE]
+at java.lang.Thread.run(Thread.java:748) ~[na:1.8.0_202]
+2024-04-22 23:16:39.576  INFO 49471 --- [ntContainer#3-1] c.e.r.c.l.DeadLetterMessageReceiver      : 收到死信消息A：(Body:'{createTime=2024-04-22 23:16:39, messageId=0e8c9e25-0276-4f8b-8e8a-e95166c80ebc, messageData=deadletter}' MessageProperties [headers={spring_listener_return_correlation=b113ec1e-2d28-45b0-aef1-5bf2112b7532, x-first-death-exchange=dead.letter.demo.simple.business.exchange, x-last-death-reason=rejected, x-death=[{reason=rejected, count=1, exchange=dead.letter.demo.simple.business.exchange, time=Mon Apr 22 23:16:39 CST 2024, routing-keys=[], queue=dead.letter.demo.simple.business.queuea}], x-first-death-reason=rejected, x-first-death-queue=dead.letter.demo.simple.business.queuea, x-last-death-queue=dead.letter.demo.simple.business.queuea, x-last-death-exchange=dead.letter.demo.simple.business.exchange}, contentType=application/x-java-serialized-object, contentLength=0, receivedDeliveryMode=PERSISTENT, priority=0, redelivered=false, receivedExchange=dead.letter.demo.simple.deadletter.exchange, receivedRoutingKey=dead.letter.demo.simple.deadletter.queuea.routingkey, deliveryTag=1, consumerTag=amq.ctag-uKMOQFET9QpaHWe6rCHHlg, consumerQueue=dead.letter.demo.simple.deadletter.queuea])
+
+### 5.5.4 创建死信队列
+此处不会自动创建死信队列
+
+1. 先创建死信交换机，同一般的交换机
+
+2. 创建死信队列 , 死信队列的参数key是固定的，需要去图形化界面中复制
+![img.png](image/img16.png)
 
 
 ## 5.6 延迟队列
 延迟队列，也叫延时队列，是一种消息队列，消息在发送之后，会延迟一定时间再被消费。
+
+### 5.6.1 延迟队列的定义
+延时队列，首先，它是一种队列，队列意味着内部的元素是有序的，元素出队和入队是有方向性的，元素从一端进入，从另一端取出。
+
+其次，延时队列，最重要的特性就体现在它的延时属性上，跟普通的队列不一样的是，普通队列中的元素总是等着希望被早点取出处理，而延时队列中的元素则是希望被在指定时间得到取出和处理，所以延时队列中的元素是都是带时间属性的，通常来说是需要被处理的消息或者任务。
+
+简单来说，延时队列就是用来存放需要在指定时间被处理的元素的队列。
+
+### 5.6.2 延迟队列的使用场景
+考虑一下以下场景：
+1. 订单在十分钟之内未支付则自动取消。
+2. 新创建的店铺，如果在十天内都没有上传过商品，则自动发送消息提醒。
+3. 账单在一周内未支付，则自动结算。
+4. 用户注册成功后，如果三天内没有登陆则进行短信提醒。
+5. 用户发起退款，如果三天内没有得到处理则通知相关运营人员。
+6. 预定会议后，需要在预定的时间点前十分钟通知各个与会人员参加会议。
+
+### 5.6.3 RabbitMQ中的TTL
+先介绍一下RabbitMQ中的一个高级特性——TTL（Time To Live）。
+
+TTL是什么呢？TTL是RabbitMQ中一个消息或者队列的属性，表明一条消息或者该队列中的所有消息的最大存活时间，单位是毫秒。换句话说，如果一条消息设置了TTL属性或者进入了设置TTL属性的队列，那么这条消息如果在TTL设置的时间内没有被消费，则会成为“死信”（至于什么是死信，请翻看上一篇）。如果同时配置了队列的TTL和消息的TTL，那么较小的那个值将会被使用。
+
+那么，如何设置这个TTL值呢？有两种方式:
+
+- 第一种是在创建队列的时候设置队列的“x-message-ttl”属性，这样所有被投递到该队列的消息都最多不会存活超过6s。
+```java
+Map<String, Object> args = new HashMap<String, Object>();
+args.put("x-message-ttl", 6000);
+channel.queueDeclare(queueName, durable, exclusive, autoDelete, args);
+```
+- 另一种方式便是针对每条消息设置TTL,这样这条消息的过期时间也被设置成了6s
+```java
+AMQP.BasicProperties.Builder builder = new AMQP.BasicProperties.Builder();
+builder.expiration("6000");
+AMQP.BasicProperties properties = builder.build();
+channel.basicPublish(exchangeName, routingKey, mandatory, properties, "msg body".getBytes());
+```
+
+这两种方式是有区别的，如果设置了队列的TTL属性，那么一旦消息过期，就会被队列丢弃，而第二种方式，消息即使过期，也不一定会被马上丢弃，因为消息是否过期是在即将投递到消费者之前判定的，如果当前队列有严重的消息积压情况，则已过期的消息也许还能存活较长时间。
+
+还需要注意的一点是，如果不设置TTL，表示消息永远不会过期，如果将TTL设置为0，则表示除非此时可以直接投递该消息到消费者，否则该消息将会被丢弃。
+
+
+
+
 
 
 # 6 整合Springboot
@@ -1533,4 +1654,7 @@ public class RabbitMQConfig {
 - ~~[中间件系列三 RabbitMQ之交换机的四种类型和属性](https://blog.csdn.net/hry2015/article/details/79118804)~~
 - ~~[中间件系列四 RabbitMQ之Fanout exchange（扇型交换机）之发布订阅](https://blog.csdn.net/hry2015/article/details/79144038)~~
 - ~~[【RabbitMQ】一文带你搞定RabbitMQ死信队列](https://mfrank2016.github.io/breeze-blog/2020/05/04/rabbitmq/rabbitmq-how-to-use-dead-letter-queue/)~~
-- 
+- ~~[【RabbitMQ】一文带你搞定RabbitMQ延迟队列](https://www.cnblogs.com/mfrank/p/11260355.html)~~
+- ~~[RabbitMQ高级：死信队列详解](https://blog.csdn.net/w15558056319/article/details/123505899)~~
+- ~~[RabbitMQ死信队列在SpringBoot中的使用](https://juejin.cn/post/6844904120030085134)~~
+
