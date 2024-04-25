@@ -11,7 +11,7 @@ import java.util.Map;
 @Component
 @RabbitListener(bindings = @QueueBinding(
         // 使用了 SpEL 来指定队列名称
-        value = @Queue(value = "fanout.A" + "-" + "#{ T(java.util.UUID).randomUUID() }"),
+        value = @Queue(value = "fanout.A" + "-" + "#{ T(java.util.UUID).randomUUID() }",autoDelete = "true"),
         exchange = @Exchange(value = "broadcastFanoutExchange",type="fanout")
 ))
 @Slf4j
