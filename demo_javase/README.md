@@ -184,3 +184,10 @@ public class ScheduledExecutorServiceExample {
 ```
 
 在这个示例中，我们创建了一个单线程的`ScheduledExecutorService`，并在延迟1秒后执行一个简单的任务，然后关闭了任务调度器。
+
+# 9 Hutools
+Hutool是一个Java工具类库，提供了许多常用的工具类，包括字符串处理、日期处理、集合处理、文件处理、网络处理、加密解密、JWT令牌、XML处理、JSON处理、正则表达式处理、线程池处理、缓存处理、IO
+处理、加密解密、文件处理、JWT令牌、XML处理、JSON处理、正则表达式处理、线程池处理、缓存处理、IO处理、加密解密、文件处理、JWT令牌、XML处理、JSON处理、正则表达式处理、线程池处理、缓存处理、IO处理、加密解密、文件处理、JWT令牌、XML.
+
+- [官方文档](https://doc.hutool.cn/pages/index/)
+

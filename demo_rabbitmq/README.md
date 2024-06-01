@@ -1839,20 +1839,60 @@ public class RabbitMQConfig {
         return BindingBuilder.bind(queue).to(exchange).with(DEAD_LETTER_QUEUEC_ROUTING_KEY);
     }
 }
+
+
+// 生产者
+@GetMapping("sendDelayMsg1")
+public void sendDelayMsg1(String msg,  long delayTime){
+    String messageId = String.valueOf(UUID.randomUUID());
+    String createTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    Map<String, Object> map = new HashMap<>();
+    map.put("messageId", messageId);
+    map.put("messageData", msg);
+    map.put("createTime", createTime);
+    log.info("sendFanoutMessage1 {} sendMessage：{}",portConfig.getPort(),map);
+
+    // 创建消息属性
+    MessageProperties messageProperties = new MessageProperties();
+    messageProperties.setExpiration(String.valueOf(delayTime*1000)); // 设置 TTL，单位为毫秒
+
+    // 创建消息对象
+    Message amqpMessage = new Message(ObjectUtil.serialize(map), messageProperties);
+
+    // 发送消息
+    rabbitTemplate.send("delay.queue.demo.business.exchange", "delay.queue.demo.business.queuec.routingkey",
+            amqpMessage, new CorrelationData(String.valueOf(new Date().getTime())));
+}
 ```
+>2024-04-25 16:41:33.747  INFO 175739 --- [nio-8021-exec-3] c.e.r.p.c.SendMessageController          : sendFanoutMessage1 8021 sendMessage：{createTime=2024-04-25 16:41:33, messageId=5ba44bb7-995c-47b6-8748-301d06ce8543, messageData=5分钟}
+2024-04-25 16:41:33.819  INFO 175739 --- [nectionFactory2] c.e.r.pruduct.config.RabbitConfig        : ConfirmCallback-相关数据：CorrelationData [id=1714034493747]
+2024-04-25 16:41:33.820  INFO 175739 --- [nectionFactory2] c.e.r.pruduct.config.RabbitConfig        : ConfirmCallback-确认情况：true
+2024-04-25 16:41:33.820  INFO 175739 --- [nectionFactory2] c.e.r.pruduct.config.RabbitConfig        : ConfirmCallback-原因：null
+2024-04-25 16:42:11.707  INFO 175739 --- [nio-8021-exec-4] c.e.r.p.c.SendMessageController          : sendFanoutMessage1 8021 sendMessage：{createTime=2024-04-25 16:42:11, messageId=ba4bcd79-08dd-4a0d-8a60-95c94070222f, messageData=半分钟}
+2024-04-25 16:42:11.762  INFO 175739 --- [nectionFactory2] c.e.r.pruduct.config.RabbitConfig        : ConfirmCallback-相关数据：CorrelationData [id=1714034531707]
+2024-04-25 16:42:11.762  INFO 175739 --- [nectionFactory2] c.e.r.pruduct.config.RabbitConfig        : ConfirmCallback-确认情况：true
+2024-04-25 16:42:11.762  INFO 175739 --- [nectionFactory2] c.e.r.pruduct.config.RabbitConfig        : ConfirmCallback-原因：null
+
+
+
+
 - 增加一个死信队列C的消费者：
 ```java
-@RabbitListener(queues = DEAD_LETTER_QUEUEC_NAME)
+ @RabbitListener(queues = DEAD_LETTER_QUEUEC_NAME)
 public void receiveC(Message message, Channel channel) throws IOException {
-    String msg = new String(message.getBody());
-    log.info("当前时间：{},死信队列C收到消息：{}", new Date().toString(), msg);
+    log.info("当前时间：{},死信队列C收到消息：{}", DateUtil.date(), ObjectUtil.deserialize(message.getBody(),Map.class));
     channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
 }
 ```
 
+>2024-04-25 16:46:33.819  INFO 176078 --- [ntContainer#4-1] c.e.r.c.listener.DelayQueueReceiver      : 当前时间：2024-04-25 16:46:33,死信队列C收到消息：{createTime=2024-04-25 16:41:33, messageId=5ba44bb7-995c-47b6-8748-301d06ce8543, messageData=5分钟}
+2024-04-25 16:46:33.820  INFO 176078 --- [ntContainer#4-1] c.e.r.c.listener.DelayQueueReceiver      : 当前时间：2024-04-25 16:46:33,死信队列C收到消息：{createTime=2024-04-25 16:42:11, messageId=ba4bcd79-08dd-4a0d-8a60-95c94070222f, messageData=半分钟}
+
+
+
 缺点：如果使用在消息属性上设置TTL的方式，消息可能并不会按时“死亡“，因为RabbitMQ只会检查第一个消息是否过期，如果过期则丢到死信队列，索引如果第一个消息的延时时长很长，而第二个消息的延时时长很短，则第二个消息并不会优先得到执行。
 
-先发了一个延时时长为20s的消息，然后发了一个延时时长为2s的消息，结果显示，第二个消息会在等第一个消息成为死信后才会“死亡“。这样第二个消息的延时时长会比第一个消息长。
+先发了一个延时时长为5分钟的消息，然后发了一个延时时长为半分钟的消息，结果显示，第二个消息会在等第一个消息成为死信后才会“死亡“。这样第二个消息的延时时长会与第一个消息一样，而非半分钟。
 
 #### 5.6.4.3 通过插件实现
 上文中提到的问题，确实是一个硬伤，如果不能实现在消息粒度上添加TTL，并使其在设置的TTL时间及时死亡，就无法设计成一个通用的延时队列。

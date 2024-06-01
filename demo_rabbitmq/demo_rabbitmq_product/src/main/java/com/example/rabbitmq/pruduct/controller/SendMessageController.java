@@ -1,13 +1,19 @@
 package com.example.rabbitmq.pruduct.controller;
 
+import cn.hutool.core.convert.Convert;
+import cn.hutool.core.util.ObjectUtil;
 import com.example.rabbitmq.pruduct.config.PortConfig;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageProperties;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -154,6 +160,28 @@ public class SendMessageController {
         map.put("createTime", createTime);
         log.info("sendFanoutMessage1 {} sendMessage：{}",portConfig.getPort(),map);
         rabbitTemplate.convertAndSend(BUSINESS_EXCHANGE_NAME, null, map);
+    }
+
+    @GetMapping("sendDelayMsg1")
+    public void sendDelayMsg1(String msg,  long delayTime){
+        String messageId = String.valueOf(UUID.randomUUID());
+        String createTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        Map<String, Object> map = new HashMap<>();
+        map.put("messageId", messageId);
+        map.put("messageData", msg);
+        map.put("createTime", createTime);
+        log.info("sendFanoutMessage1 {} sendMessage：{}",portConfig.getPort(),map);
+
+        // 创建消息属性
+        MessageProperties messageProperties = new MessageProperties();
+        messageProperties.setExpiration(String.valueOf(delayTime*1000)); // 设置 TTL，单位为毫秒
+
+        // 创建消息对象
+        Message amqpMessage = new Message(ObjectUtil.serialize(map), messageProperties);
+
+        // 发送消息
+        rabbitTemplate.send("delay.queue.demo.business.exchange", "delay.queue.demo.business.queuec.routingkey",
+                amqpMessage, new CorrelationData(String.valueOf(new Date().getTime())));
     }
 
 }
