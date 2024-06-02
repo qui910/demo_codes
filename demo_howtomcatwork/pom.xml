@@ -74,6 +74,15 @@
             <version>${junit5.version}</version>
         </dependency>
 
+        <!-- 引入Servlet API -->
+        <!-- Servlet API通常是由Java EE或Jakarta EE提供的，但随着Java EE被迁移到Eclipse基金会并重命名为Jakarta EE，新的项目倾向于使用Jakarta Servlet API。 -->
+        <!-- 此处引入还是使用旧版，新版为 jakarta.servlet-api-->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>4.0.1</version>
+        </dependency>
+
     </dependencies>
 
     <build>
