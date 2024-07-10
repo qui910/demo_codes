@@ -10,20 +10,36 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * 使用Java NIO实现Socket通信
+ * <p>
+ *     缓存使用改进
+ * </p>
  * @author pang
  * @version 1.0
  * @date 2024-07-10 11:13
  * @since 1.8
  **/
 @Slf4j
-public class SocketServer3 {
+public class SocketServer4 {
 
     private static final int PORT = 1083;
 
     private static final Object xWait = new Object();
+
+    /**
+     * 改进点1
+     * 改进的java nio server的代码中，由于buffer的大小设置的比较小。
+     * 我们不再把一个client通过socket channel多次传给服务器的信息保存在beff中了（因为根本存不下）<br>
+     * 我们使用socketchanel的hashcode作为key（当然您也可以自己确定一个id），信息的stringbuffer作为value，存储到服务器端的一个内存区域MESSAGEHASHCONTEXT。
+     *
+     * 如果您不清楚ConcurrentHashMap的作用和工作原理，请自行百度/Google
+     */
+    private static final ConcurrentMap<Integer, StringBuilder> MESSAGEHASHCONTEXT = new ConcurrentHashMap<Integer , StringBuilder>();
+
     public static void main(String[] args) throws Exception {
         try (ServerSocketChannel serverChannel = ServerSocketChannel.open();
              Selector selector = Selector.open();){
@@ -43,9 +59,9 @@ public class SocketServer3 {
                     //================================================
                     //      这里视业务情况，可以做一些然并卵的事情
                     //================================================
-                    synchronized (SocketServer3.xWait) {
+                    synchronized (SocketServer4.xWait) {
                         log.info("这次没有从底层接收到连接请求，等待5秒，模拟事件X的处理时间");
-                        SocketServer3.xWait.wait(5000);
+                        SocketServer4.xWait.wait(5000);
                     }
                     continue;
                 }
@@ -106,47 +122,58 @@ public class SocketServer3 {
      * @throws Exception
      */
     private static void readSocketChannel(SelectionKey readyKey) throws Exception {
-        SocketChannel clientSocketChannel = (SocketChannel)readyKey.channel();
+        SocketChannel clientSocketChannel = (SocketChannel) readyKey.channel();
         //获取客户端使用的端口
-        InetSocketAddress sourceSocketAddress = (InetSocketAddress)clientSocketChannel.getRemoteAddress();
+        InetSocketAddress sourceSocketAddress = (InetSocketAddress) clientSocketChannel.getRemoteAddress();
         Integer resoucePort = sourceSocketAddress.getPort();
 
         //拿到这个socket channel使用的缓存区，准备读取数据
         //在后文，将详细讲解缓存区的用法概念，实际上重要的就是三个元素capacity,position和limit。
-        ByteBuffer buffer = ByteBuffer.allocate(2048);
+        ByteBuffer buffer = ByteBuffer.allocate(50);
         //将通道的数据写入到缓存区，注意是写入到缓存区。
-        //由于之前设置了ByteBuffer的大小为2048 byte，所以可以存在写入不完的情况
-        //没关系，我们后面来调整代码。这里我们暂时理解为一次接受可以完成
-        int realLen = -1;
-        try {
-            realLen = clientSocketChannel.read(buffer);
-        } catch(Exception e) {
-            //这里抛出了异常，一般就是客户端因为某种原因终止了。所以关闭channel就行了
-            log.error(e.getMessage());
-            clientSocketChannel.close();
-            return;
-        }
+        //这次，为了演示buff的使用方式，我们故意缩小了buff的容量大小到50byte，
+        //以便演示channel对buff的多次读写操作
+        int realLen = 0;
+        StringBuilder message = new StringBuilder();
+        //这句话的意思是，将目前通道中的数据写入到缓存区
+        //最大可写入的数据量就是buff的容量
+        while ((realLen = clientSocketChannel.read(buffer)) != 0) {
 
-        //如果缓存区中没有任何数据（但实际上这个不太可能，否则就不会触发OP_READ事件了）
-        if(realLen == -1) {
-            log.warn("====缓存区没有数据？====");
-            return;
-        }
+            //一定要把buffer切换成“读”模式，否则由于limit = capacity
+            //在read没有写满的情况下，就会导致多读
+            buffer.flip();
+            int position = buffer.position();
+            int capacity = buffer.capacity();
+            byte[] messageBytes = new byte[capacity];
+            buffer.get(messageBytes, position, realLen);
 
-        //将缓存区从写状态切换为读状态（实际上这个方法是读写模式互切换）。
-        //这是java nio框架中的这个socket channel的写请求将全部等待。
-        buffer.flip();
-        //注意中文乱码的问题
-        byte[] data = new byte[buffer.remaining()];
-        buffer.get(data);
-        String message = new String(data, StandardCharsets.UTF_8);
+            //这种方式也是可以读取数据的，而且不用关心position的位置。
+            //因为是目前contextBytes所有的数据全部转出为一个byte数组。
+            //使用这种方式时，一定要自己控制好读取的最终位置（realLen很重要）
+            //byte[] messageBytes = contextBytes.array();
 
-        //如果收到了“over”关键字，才会清空buffer，并回发数据；
-        //否则不清空缓存，还要还原buffer的“写状态”
-        if(message.contains("over")) {
-            //清空已经读取的缓存，并从新切换为写状态(这里要注意clear()和capacity()两个方法的区别)
+            //注意中文乱码的问题
+            String messageEncode = new String(messageBytes, 0, realLen, StandardCharsets.UTF_8);
+            message.append(messageEncode);
+
+            //再切换成“写”模式，直接情况缓存的方式，最快捷
             buffer.clear();
+        }
+
+        //如果发现本次接收的信息中有over关键字，说明信息接收完了
+        if (message.toString().contains("over")) {
+            //则从messageHashContext中，取出之前已经收到的信息，组合成完整的信息
+            Integer channelUUID = clientSocketChannel.hashCode();
             log.info("端口:" + resoucePort + "客户端发来的信息======message : " + message);
+            StringBuilder completeMessage;
+            //清空MESSAGEHASHCONTEXT中的历史记录
+            StringBuilder historyMessage = MESSAGEHASHCONTEXT.remove(channelUUID);
+            if (historyMessage == null) {
+                completeMessage = message;
+            } else {
+                completeMessage = historyMessage.append(message);
+            }
+            log.info("端口:" + resoucePort + "客户端发来的完整信息======completeMessage : " + completeMessage.toString());
 
             //======================================================
             //          当然接受完成后，可以在这里正式处理业务了
@@ -157,10 +184,18 @@ public class SocketServer3 {
             clientSocketChannel.write(sendBuffer);
             clientSocketChannel.close();
         } else {
-            log.info("端口:" + resoucePort + "客户端信息还未接受完，继续接受======message : " + message);
-            //这是，limit和capacity的值一致，position的位置是realLen的位置
-            buffer.position(realLen);
-            buffer.limit(buffer.capacity());
+            //如果没有发现有“over”关键字，说明还没有接受完，则将本次接受到的信息存入messageHashContext
+            log.info("端口:" + resoucePort + "客户端信息还未接受完，继续接受======message : " + message.toString());
+            //每一个channel对象都是独立的，所以可以使用对象的hash值，作为唯一标示
+            Integer channelUUID = clientSocketChannel.hashCode();
+
+            //然后获取这个channel下以前已经达到的message信息
+            StringBuilder historyMessage = MESSAGEHASHCONTEXT.get(channelUUID);
+            if (historyMessage == null) {
+                historyMessage = new StringBuilder();
+                MESSAGEHASHCONTEXT.put(channelUUID, historyMessage.append(message));
+            }
         }
     }
+
 }

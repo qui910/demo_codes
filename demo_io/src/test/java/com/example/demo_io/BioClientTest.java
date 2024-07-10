@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  * @since 1.8
  **/
 @Slf4j
-public class BioClient {
+public class BioClientTest {
 
     @Test
     void sendAndReceiveMessage() {
@@ -31,7 +31,7 @@ public class BioClient {
              BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
             // 发送消息到服务器
-            out.println("Hello from the client!");
+            out.println("Hello from the client!你好");
             TimeUnit.SECONDS.sleep(60);
             out.println("over");
 
