@@ -32,8 +32,10 @@ public class BioClientTest {
 
             // 发送消息到服务器
             out.println("Hello from the client!你好");
+            log.info("send hello");
             TimeUnit.SECONDS.sleep(60);
             out.println("over");
+            log.info("send over");
 
             // 从服务器接收响应
             String response = in.readLine();
